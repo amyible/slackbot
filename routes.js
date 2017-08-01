@@ -4,7 +4,9 @@ var router = express.Router();
 var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 
-var User = require('./models/models');
+var models = require('./models/models');
+var User = models.User;
+var Reminder = models.Reminder;
 
 
 //part of google oauth set up
@@ -60,12 +62,11 @@ router.get('/success', function(req, res) {
   oauth2Client.getToken(req.query.code, function(err, tokens) {
     if(!err){
         oauth2Client.setCredentials(tokens);
+        //tokens is an object that contains 'access_token', 'id_token', 'refresh_token', 'token_type' and 'expiry_date'
 
-        console.log('tokens', tokens); //tokens is an object that contains 'access_token', 'id_token', 'refresh_token', 'token_type' and 'expiry_date'
         //get the auth_id using JSON.parse(decodeURIComponent(req.query.state));
-        //I don't know what state is right now so this is incomplete code
-        const auth_id = JSON.parse(decodeURIComponent(req.query.state));
-        console.log('query', auth_id);
+        const stateObj = JSON.parse(decodeURIComponent(req.query.state));
+        const auth_id = stateObj.auth_id;
 
         //update the user document with new google_profile
         //don't know if this syntax works
