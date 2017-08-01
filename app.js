@@ -25,7 +25,17 @@ var webhook = new IncomingWebhook(url);
 rtm.start();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  if(message.username === 'Schedulerbot') {
+  console.log('message', message)
+  var slackUsername = rtm.dataStore.getUserById(message.user);
+
+  var dm = rtm.dataStore.getDMByUserId(message.user);
+  if(!dm || dm.id !== message.user) {
+    return;
+  }
+
+  console.log('username', slackUsername)
+
+  if(message.username === 'Schedulerbot' || message.user === 'U6GUMHLEA') {
     return;
   } else {
     axios({
