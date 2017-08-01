@@ -23,6 +23,9 @@ var webhook = new IncomingWebhook(url);
 rtm.start();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
+  if(message.username === 'Schedulerbot') {
+    return;
+  }
   axios({
     method: 'post',
     url: 'https://api.api.ai/v1/query?v=20150910',
