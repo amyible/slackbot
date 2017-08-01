@@ -19,26 +19,24 @@ var scopes = [
   'https://www.googleapis.com/auth/calendar'
 ];
 
-// somewhere here we are going to do
 
- //get the slack id of the person who is talking to the slack bot
 function findUser(slackId, slackName){
   User.find({slack_id: slackId}, function(err, user){
       if(user.length !== 0){
         if(user[0].google_profile){
             oauth2Client.setCredentials(user[0].google_profile);
-            return false;
+            return true;
         }else{
-            return "http://localhost:3000/connect?auth_id=" + slackId;
+            return false;
         }
       }else{
         new User({
             slack_id: slackId,
-            slack_name: slackName, //slack username of the person who is talking to the slack bot
+            slack_name: slackName,
         }).save(function(err, user){
             console.log("save success");
         });
-        return "http://localhost:3000/connect?auth_id=" + slackId;
+        return false;
       }
   })
 }
@@ -87,7 +85,7 @@ router.get('/success', function(req, res) {
         }, function(err, user){
           if(!err) {
             console.log("no error! update success!");
-            console.log('user');
+            console.log('user', user);
           }
         })
     }else{
@@ -179,7 +177,4 @@ function addMeetings(auth, startDateTime, endDateTime, attendees, summary) {
 }
 
 
-module.exports = {
-  router,
-  findUser,
-};
+module.exports = router;
