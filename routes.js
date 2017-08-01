@@ -186,4 +186,8 @@ function addMeetings(auth, startDateTime, endDateTime, attendees, summary) {
 
 module.exports = {
   router,
+<<<<<<< HEAD
+=======
+  //findUser,
+>>>>>>> 4ec9de09e3835a75ceb75411b9444533ea7157f9
 };
