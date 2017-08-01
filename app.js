@@ -1,6 +1,5 @@
 var express = require('express');
 var request = require('request');
-var axios = require('axios');
 var apiai = require('apiai');
 
 var app = express();
@@ -20,27 +19,13 @@ var rtm = new RtmClient(token, { /*logLevel: 'debug'*/ });
 var webhook = new IncomingWebhook(url);
 rtm.start();
 
-// const AIpost = function(message) {
-//   return axios.post('https:api.api.ai/api/query?v=20150910', {
-//     'Headers': {
-//       query: message.text,
-//       lang: en,
-//       sessionId: message.user,
-//       timezone: new Date().getTimezoneOffset(),
-//     },
-//     'Authorization': {
-//       Bearer: token, // This should be the slack api token
-//     },
-//     'Content-Type': 'application/json',
-//   })
-// }
-
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
+  console.log('message', message)
   var request = application.textRequest(message, {
       sessionId: message.user,
   });
-  console.log(request);
-  rtm.sendMessage(request.query, message.channel);
+  console.log('WHAT I GOT: ',request);
+  rtm.sendMessage(request.query.text, message.channel);
 });
 
 rtm.on(RTM_EVENTS.USER_TYPING, function handleRtmTyping(message){
