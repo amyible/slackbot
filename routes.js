@@ -20,38 +20,38 @@ var scopes = [
 ];
 
 // somewhere here we are going to do
-var email = "amyible@gmail.com";
-var slackId = 1;
-var slackName = 1;
+
  //get the slack id of the person who is talking to the slack bot
-User.find({slack_id: slackId}, function(err, user){
-    if(user.length !== 0){
-      //if the google_profile is not empty, send the request to API.AI
-      //else send a URL to user to authorize Google Calendar like the case in the else statement below
-      if(user[0].google_profile){
-          oauth2Client.setCredentials(user[0].google_profile);
-          addAllDayEvents(oauth2Client, '2017-08-01', 'second testing');
-          var attendees = [
-            {
-              "email": "x@gmail.com",
-            }
-          ];
-          listEvents(oauth2Client);
-          addMeetings(oauth2Client, '2017-08-01T13:00:00+00:00', '2017-08-01T14:00:00+00:00', attendees, "example meeting");
+function findUser(slackId, slackName){
+  User.find({slack_id: slackId}, function(err, user){
+      if(user.length !== 0){
+        if(user[0].google_profile){
+            oauth2Client.setCredentials(user[0].google_profile);
+            return false;
+        }else{
+            return "http://localhost:3000/connect?auth_id=" + slackId;
+        }
+      }else{
+        new User({
+            slack_id: slackId,
+            slack_name: slackName, //slack username of the person who is talking to the slack bot
+        }).save(function(err, user){
+            console.log("save success");
+        });
+        return "http://localhost:3000/connect?auth_id=" + slackId;
       }
-    }else{
-      new User({
-          slack_id: slackId,
-          slack_name: slackName, //slack username of the person who is talking to the slack bot
-      }).save(function(err, user){
-        //then use the bot to ask the user to grant you access
-        //generate a link like /connect?auth_id=596ad616191fc5ce7e79138e (which is localhost:3000/connect?auth_id=something in this case)
-        //when the user click this link, it will redirect to google oauth (specificed in the route below)
-        //the auth_id refers to the _id in mongodb database
-        //get the id using user.id
-      });
-    }
-})
+  })
+}
+
+// addAllDayEvents(oauth2Client, '2017-08-01', 'second testing');
+// var attendees = [
+//   {
+//     "email": "x@gmail.com",
+//   }
+// ];
+// listEvents(oauth2Client);
+// addMeetings(oauth2Client, '2017-08-01T13:00:00+00:00', '2017-08-01T14:00:00+00:00', attendees, "example meeting");
+
 
 //this is the route that will redirect to google oauth
 router.get('/connect', function(req, res) {
