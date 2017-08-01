@@ -13,7 +13,7 @@ var IncomingWebhook = require('@slack/client').IncomingWebhook;
 var token = process.env.SLACK_API_TOKEN || '';
 var url = process.env.SLACK_WEBHOOK_URL || '';
 
-var app = apiai("0363b04fac5d44899aa10b88294aa6cc");
+var application = apiai("0363b04fac5d44899aa10b88294aa6cc");
 
 var web = new WebClient(token);
 var rtm = new RtmClient(token, { /*logLevel: 'debug'*/ });
@@ -36,7 +36,7 @@ rtm.start();
 // }
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  var request = app.textRequest(message, {
+  var request = application.textRequest(message, {
       sessionId: message.user,
   });
   console.log(request);
