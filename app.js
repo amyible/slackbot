@@ -1,4 +1,5 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
@@ -36,11 +37,12 @@ rtm.start();
 // }
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  var request = application.textRequest(message, {
-      sessionId: message.user,
-  });
-  console.log(request);
-  rtm.sendMessage(request.query, message.channel);
+  // var request = application.textRequest(message, {
+  //     sessionId: message.user,
+  // });
+  // console.log(request);
+  // rtm.sendMessage(request.query, message.channel);
+ // rtm.sendMessage("message: " + message.text, message.channel)
 });
 
 rtm.on(RTM_EVENTS.USER_TYPING, function handleRtmTyping(message){
@@ -86,6 +88,8 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
   console.log('Reaction removed:', reaction);
 });
 
+app.use(bodyParser.urlencoded({ extended: false }));
+
 app.get('/', function(req, res){
 	res.send('Ngrok is working! Path Hit: ' + req.url);
 });
@@ -111,8 +115,13 @@ app.get('/oauth', function(req, res){
     }
 });
 
-app.post('/command', function(req, res) {
-	res.send("This works too");
+app.post('/interact', function(req, res) {
+	if (req.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
+	else {
+		var answer = JSON.parse(req.body.payload)
+		console.log("Got it! You answered:", answer.actions[0].value);
+		res.send('Ok');
+	}
 })
 
 var port = process.env.PORT || 3000;
