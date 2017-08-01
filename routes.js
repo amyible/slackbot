@@ -19,28 +19,32 @@ var scopes = [
   'https://www.googleapis.com/auth/calendar'
 ];
 
+// function findUser(slackId){
+//   var query = User.find({slack_id: slackId});
+//   return query
+// }
 
 function findUser(slackId, slackName){
   var returnVar = false;
-  User.find({slack_id: slackId}, function(err, user){
+  User.find({slack_id: slackId})
+    .then(function(user){
       if(user.length !== 0){
         if(user[0].google_profile){
             oauth2Client.setCredentials(user[0].google_profile);
-            returnVar = true;
+            return true;
         }else{
-            returnVar = false;
+            return false;
         }
       }else{
         new User({
             slack_id: slackId,
             slack_name: slackName,
         }).save(function(err, user){
-            returnVar = false;
+            return false;
             console.log("save success");
         });
       }
   })
-  return returnVar;
 }
 
 // addAllDayEvents(oauth2Client, '2017-08-01', 'second testing');
