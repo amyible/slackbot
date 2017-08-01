@@ -20,32 +20,33 @@ var scopes = [
 ];
 
 
-function findUser(slackId, slackName){
-  let result;
-  User.find({slack_id: slackId}, function(err, user){
-      if (err) console.log("Err", err);
-      if(user.length !== 0){
-        if(user[0].google_profile){
-            oauth2Client.setCredentials(user[0].google_profile);
-            result = true;
-        }else{
-            result = false;
-        }
-      }else{
-        new User({
-            slack_id: slackId,
-            slack_name: slackName,
-        }).save(function(err, user){
-            console.log("save success");
-        });
-        result = false;
-      }
-  })
-  .then(function(response) {
-    console.log("res",result)
-    return result;
-  })
-}
+// function findUser(slackId, slackName){
+//   let result;
+//   User.find({slack_id: slackId}, function(err, user){
+//       if (err) console.log("Err", err);
+//       if(user.length !== 0){
+//         if(user[0].google_profile){
+//             console.log(oauth2Client)
+//             oauth2Client.setCredentials(user[0].google_profile);
+//             result = true;
+//         }else{
+//             result = false;
+//         }
+//       }else{
+//         new User({
+//             slack_id: slackId,
+//             slack_name: slackName,
+//         }).save(function(err, user){
+//             console.log("save success");
+//         });
+//         result = false;
+//       }
+//   })
+//   .then(function(response) {
+//     console.log("res",result)
+//     return result;
+//   })
+// }
 
 // addAllDayEvents(oauth2Client, '2017-08-01', 'second testing');
 // var attendees = [

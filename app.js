@@ -27,15 +27,13 @@ var webhook = new IncomingWebhook(url);
 rtm.start();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  // console.log('message', message)
+  console.log('message', message)
   var slackUsername = rtm.dataStore.getUserById(message.user);
-  console.log('username', slackUsername.name)
+
   var dm = rtm.dataStore.getDMByUserId(message.user);
-  // console.log('dm: ', dm)
-  if(!dm || dm.user !== message.user) {
-    return;
-  }
-  if(message.username === 'Schedulerbot') {
+  console.log('dm', dm)
+
+  if(message.username === 'Schedulerbot' || !dm || dm.user !== message.user || slackUsername.name === 'schedulerbot') {
     return;
   } else {
     console.log('DOING AXIOS POST')
@@ -80,8 +78,17 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
           rtm.sendMessage(finalmessage, message.channel);
       } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+// =======
+//       // console.log('response', response);
+//       if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+//         var userAuthUrl = findUser(message.user, slackUsername.name);
+//         console.log('userAuthUrl', userAuthUrl)
+//         console.log('WELCOMEEEEEEEEEE')
+//           var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
+//           rtm.sendMessage(finalmessage, message.channel)
+//       } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling') && !response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+// >>>>>>> db2516b0be59869ddc1f42d59713f036512802b8
         rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
-
       } else if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
         web.chat.postMessage(message.channel,
             "Does this look good?",
