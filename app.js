@@ -88,11 +88,11 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   })
 });
 
-rtm.on(RTM_EVENTS.USER_TYPING, function handleRtmTyping(message){
+// rtm.on(RTM_EVENTS.USER_TYPING, function handleRtmTyping(message){
 	// var result = AIpost(message);
 	// console.log("result is:", result);
 
-})
+// })
 
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
   console.log('Reaction added:', reaction);
@@ -130,7 +130,7 @@ app.get('/oauth', function(req, res){
 });
 
 app.post('/interact', function(req, res) {
-	if (req.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
+	if (req.body.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
 	else {
 		var answer = JSON.parse(req.body.payload)
 		console.log("Got it! You answered:", answer.actions[0].value);
