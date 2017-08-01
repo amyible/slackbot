@@ -4,7 +4,7 @@ var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
 var path = require('path');
-var { router, findUser } = require('./routes');
+var { router } = require('./routes');
 var models = require('./models/models');
 var User = models.User;
 
