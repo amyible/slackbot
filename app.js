@@ -25,7 +25,7 @@ var webhook = new IncomingWebhook(url);
 rtm.start();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  if(message.username === 'Schedulerbot') {
+  if(message.username === 'Schedulerbot' || message.username === 'schedulerbot') {
     return;
   }
   axios({
@@ -47,6 +47,9 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
       console.log('WELCOMEEEEEEEEEE')
       var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
+      console.log(findUser);
+      const url = findUser(message.user);
+      console.log("URL", url);
       rtm.sendMessage(finalmessage, message.channel)
     } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
       rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
