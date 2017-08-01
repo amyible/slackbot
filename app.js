@@ -4,7 +4,7 @@ var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
 var path = require('path');
-var { router, findUser } = require('./routes')
+var { router, findUser } = require('./routes');
 
 var app = express();
 
@@ -27,71 +27,75 @@ rtm.start();
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   if(message.username === 'Schedulerbot') {
     return;
+  } else {
+    axios({
+      method: 'post',
+      url: 'https://api.api.ai/v1/query?v=20150910',
+      headers: {
+        'Authorization': 'Bearer ' + apitoken, // This should be the slack api token
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      data: {
+        query: message.text,
+        sessionId: message.user,
+        lang: 'en',
+        //timezone: new Date(),
+      }
+    })
+    .then(function(response) {
+      var userAuthUrl = findUser(message.user, 'yo');
+      console.log('userAuthUrl', userAuthUrl)
+      if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+        console.log('WELCOMEEEEEEEEEE')
+        var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
+        rtm.sendMessage(finalmessage, message.channel)
+
+      } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+        rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
+
+      } else if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+        web.chat.postMessage(message.channel,
+      	    "Does this look good?",
+      	    { "attachments": [
+      	        {
+      	            "text": response.data.result.fulfillment.speech,
+      	            "fallback": "Error",
+      	            "callback_id": "confirm_task",
+      	            "color": "#3AA3E3",
+      	            "attachment_type": "default",
+      	            "actions": [
+      	                {
+      	                    "name": "confirm",
+      	                    "text": "Yes",
+      	                    "type": "button",
+      	                    "value": "yes",
+                            "confirm": {
+                                "title": "Are you sure?",
+                                "text": "This will add a calendar reminder to your google acount",
+                                "ok_text": "Yes",
+                                "dismiss_text": "No"
+                            }
+      	                },
+      	                {
+      	                    "name": "confirm",
+      	                    "text": "No",
+      	                    "type": "button",
+      	                    "value": "no"
+      	                }
+      	            ]
+      	        }
+      	    ]
+      		}, function(err, res){
+      			if (err) console.log('Error:', err);
+      			else console.log('Response', res);
+      			}
+      	);
+      }
+    })
+    .catch(function(err) {
+      console.log('Error: ', err);
+    })
   }
-  axios({
-    method: 'post',
-    url: 'https://api.api.ai/v1/query?v=20150910',
-    headers: {
-      'Authorization': 'Bearer ' + apitoken, // This should be the slack api token
-      'Content-Type': 'application/json; charset=utf-8',
-    },
-    data: {
-      query: message.text,
-      sessionId: message.user,
-      lang: 'en',
-      //timezone: new Date(),
-    }
-  })
-  .then(function(response) {
-    console.log('response: ', response.data.result.fulfillment.speech);
-    if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
-      console.log('WELCOMEEEEEEEEEE')
-      var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
-      rtm.sendMessage(finalmessage, message.channel)
-    } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
-      rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
-    } else if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
-      web.chat.postMessage(message.channel,
-    	    "Does this look good?",
-    	    { "attachments": [
-    	        {
-    	            "text": response.data.result.fulfillment.speech,
-    	            "fallback": "Error",
-    	            "callback_id": "confirm_task",
-    	            "color": "#3AA3E3",
-    	            "attachment_type": "default",
-    	            "actions": [
-    	                {
-    	                    "name": "confirm",
-    	                    "text": "Yes",
-    	                    "type": "button",
-    	                    "value": "yes",
-                          "confirm": {
-                              "title": "Are you sure?",
-                              "text": "This will add a calendar reminder to your google acount",
-                              "ok_text": "Yes",
-                              "dismiss_text": "No"
-                          }
-    	                },
-    	                {
-    	                    "name": "confirm",
-    	                    "text": "No",
-    	                    "type": "button",
-    	                    "value": "no"
-    	                }
-    	            ]
-    	        }
-    	    ]
-    		}, function(err, res){
-    			if (err) console.log('Error:', err);
-    			else console.log('Response', res);
-    			}
-    	);
-    }
-  })
-  .catch(function(err) {
-    console.log('Error: ', err);
-  })
 });
 
 rtm.on(RTM_EVENTS.USER_TYPING, function handleRtmTyping(message){
