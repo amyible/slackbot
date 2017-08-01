@@ -71,6 +71,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
           });
           result = false;
         }
+        console.log('result', result);
     })
     .then(function(resp) {
       if (!result) {
@@ -129,7 +130,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     })
 
     })
-      
+
       //console.log('userAuthUrl', findUser(message.user, slackUsername.name));
       // console.log('response', response);
     //   if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
