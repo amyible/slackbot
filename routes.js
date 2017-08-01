@@ -21,13 +21,15 @@ var scopes = [
 
 
 function findUser(slackId, slackName){
+  let result;
   User.find({slack_id: slackId}, function(err, user){
+      if (err) console.log("Err", err);
       if(user.length !== 0){
         if(user[0].google_profile){
             oauth2Client.setCredentials(user[0].google_profile);
-            return true;
+            result = true;
         }else{
-            return false;
+            result = false;
         }
       }else{
         new User({
@@ -36,8 +38,12 @@ function findUser(slackId, slackName){
         }).save(function(err, user){
             console.log("save success");
         });
-        return false;
+        result = false;
       }
+  })
+  .then(function(response) {
+    console.log("res",result)
+    return result;
   })
 }
 
