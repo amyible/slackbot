@@ -47,8 +47,8 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       console.log('userAuthUrl', userAuthUrl)
       if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
         console.log('WELCOMEEEEEEEEEE')
-        var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
-        rtm.sendMessage(finalmessage, message.channel)
+          var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
+          rtm.sendMessage(finalmessage, message.channel)
 
       } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
         rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
