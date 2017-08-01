@@ -27,7 +27,7 @@ rtm.start();
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   console.log('message', message)
   var slackUsername = rtm.dataStore.getUserById(message.user);
-  console.log('username', slackUsername.name)
+
   var dm = rtm.dataStore.getDMByUserId(message.user);
   console.log('dm', dm)
 
@@ -50,16 +50,15 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       }
     })
     .then(function(response) {
-      var userAuthUrl = findUser(message.user, slackUsername.name);
-      console.log('userAuthUrl', userAuthUrl)
       // console.log('response', response);
       if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+        var userAuthUrl = findUser(message.user, slackUsername.name);
+        console.log('userAuthUrl', userAuthUrl)
         console.log('WELCOMEEEEEEEEEE')
           var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
           rtm.sendMessage(finalmessage, message.channel)
-      } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+      } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling') && !response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
         rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
-
       } else if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
         web.chat.postMessage(message.channel,
       	    "Does this look good?",
