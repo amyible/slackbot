@@ -21,30 +21,6 @@ var rtm = new RtmClient(token, { /*logLevel: 'debug'*/ });
 var webhook = new IncomingWebhook(url);
 rtm.start();
 
-// function AIpost(message) {
-//   console.log(message);
-//   return axios({
-//     'method': 'post',
-//     'url': 'http://api.api.ai/query?v=20150910',
-//     'Headers': {
-//       'Authorization': 'Bearer ' + token, // This should be the slack api token
-//       'Content-Type': 'application/json; charset=utf-8',
-//     },
-//     'data': {
-//       'query': message.text,
-//       'sessionId': message.user,
-//       'lang': 'en',
-//       // timezone: new Date(),
-//     }
-//   })
-//   .then(function(response) {
-//     console.log('response', response);
-//   })
-//   .catch(function(err) {
-//     console.log('Error: ', err);
-//   })
-// }
-
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   axios({
     method: 'post',
