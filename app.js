@@ -4,7 +4,9 @@ var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
 var path = require('path');
-var { router, findUser } = require('./routes');
+var { router } = require('./routes');
+var models = require('./models/models');
+var User = models.User;
 
 var app = express();
 
@@ -49,54 +51,133 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       }
     })
     .then(function(response) {
-      // console.log('response', response);
-      if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
-        var userAuthUrl = findUser(message.user, slackUsername.name);
-        console.log('userAuthUrl', userAuthUrl)
-        console.log('WELCOMEEEEEEEEEE')
-          var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
-          rtm.sendMessage(finalmessage, message.channel)
-      } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling') && !response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+      //var userAuthUrl = findUser(message.user, slackUsername.name);
+      let result;
+       return User.find({slack_id: message.user}, function(err, user){
+        if (err) console.log("Err", err);
+        if(user.length !== 0){
+          if(user[0].google_profile){
+              //oauth2Client.setCredentials(user[0].google_profile);
+              result = true;
+          }else{
+              result = false;
+          }
+        }else{
+          new User({
+              slack_id: message.user,
+              slack_name: slackUsername.name,
+          }).save(function(err, user){
+              console.log("save success");
+          });
+          result = false;
+        }
+    })
+    .then(function(resp) {
+      if (!result) {
+        var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
+          rtm.sendMessage(finalmessage, message.channel);
+      } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+// =======
+//       // console.log('response', response);
+//       if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+//         var userAuthUrl = findUser(message.user, slackUsername.name);
+//         console.log('userAuthUrl', userAuthUrl)
+//         console.log('WELCOMEEEEEEEEEE')
+//           var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
+//           rtm.sendMessage(finalmessage, message.channel)
+//       } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling') && !response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+// >>>>>>> db2516b0be59869ddc1f42d59713f036512802b8
         rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
       } else if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
         web.chat.postMessage(message.channel,
-      	    "Does this look good?",
-      	    { "attachments": [
-      	        {
-      	            "text": response.data.result.fulfillment.speech,
-      	            "fallback": "Error",
-      	            "callback_id": "confirm_task",
-      	            "color": "#3AA3E3",
-      	            "attachment_type": "default",
-      	            "actions": [
-      	                {
-      	                    "name": "confirm",
-      	                    "text": "Yes",
-      	                    "type": "button",
-      	                    "value": "yes",
+            "Does this look good?",
+            { "attachments": [
+                {
+                    "text": response.data.result.fulfillment.speech,
+                    "fallback": "Error",
+                    "callback_id": "confirm_task",
+                    "color": "#3AA3E3",
+                    "attachment_type": "default",
+                    "actions": [
+                        {
+                            "name": "confirm",
+                            "text": "Yes",
+                            "type": "button",
+                            "value": "yes",
                             "confirm": {
                                 "title": "Are you sure?",
                                 "text": "This will add a calendar reminder to your google acount",
                                 "ok_text": "Yes",
                                 "dismiss_text": "No"
                             }
-      	                },
-      	                {
-      	                    "name": "confirm",
-      	                    "text": "No",
-      	                    "type": "button",
-      	                    "value": "no"
-      	                }
-      	            ]
-      	        }
-      	    ]
-      		}, function(err, res){
-      			if (err) console.log('Error:', err);
-      			else console.log('Response', res);
-      			}
-      	);
+                        },
+                        {
+                            "name": "confirm",
+                            "text": "No",
+                            "type": "button",
+                            "value": "no"
+                        }
+                    ]
+                }
+            ]
+          }, function(err, res){
+            if (err) console.log('Error:', err);
+            else console.log('Response', res);
+            }
+        );
       }
     })
+
+    })
+      
+      //console.log('userAuthUrl', findUser(message.user, slackUsername.name));
+      // console.log('response', response);
+    //   if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+    //     console.log('WELCOMEEEEEEEEEE')
+    //       var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
+    //       rtm.sendMessage(finalmessage, message.channel)
+    //   } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+    //     rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
+
+    //   } else if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+    //     web.chat.postMessage(message.channel,
+    //   	    "Does this look good?",
+    //   	    { "attachments": [
+    //   	        {
+    //   	            "text": response.data.result.fulfillment.speech,
+    //   	            "fallback": "Error",
+    //   	            "callback_id": "confirm_task",
+    //   	            "color": "#3AA3E3",
+    //   	            "attachment_type": "default",
+    //   	            "actions": [
+    //   	                {
+    //   	                    "name": "confirm",
+    //   	                    "text": "Yes",
+    //   	                    "type": "button",
+    //   	                    "value": "yes",
+    //                         "confirm": {
+    //                             "title": "Are you sure?",
+    //                             "text": "This will add a calendar reminder to your google acount",
+    //                             "ok_text": "Yes",
+    //                             "dismiss_text": "No"
+    //                         }
+    //   	                },
+    //   	                {
+    //   	                    "name": "confirm",
+    //   	                    "text": "No",
+    //   	                    "type": "button",
+    //   	                    "value": "no"
+    //   	                }
+    //   	            ]
+    //   	        }
+    //   	    ]
+    //   		}, function(err, res){
+    //   			if (err) console.log('Error:', err);
+    //   			else console.log('Response', res);
+    //   			}
+    //   	);
+    //   }
+    // })
     .catch(function(err) {
       console.log('Error: ', err);
     })
