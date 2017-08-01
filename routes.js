@@ -21,9 +21,11 @@ var scopes = [
 
 
 function findUser(slackId, slackName){
-  User.find({slack_id: slackId}, function(err, user){
+  User.find({slack_id: slackId})
+  .then(function(user){
       if(user.length !== 0){
         if(user[0].google_profile){
+            console.log(oauth2Client)
             oauth2Client.setCredentials(user[0].google_profile);
             return true;
         }else{
