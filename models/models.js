@@ -14,7 +14,12 @@ var userSchema = new Schema({
 
 var reminderSchema = new Schema({
   time: Date,
-  content: String,
+  subject: String,
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  }
+
 })
 
 var User = mongoose.model('User', userSchema);
