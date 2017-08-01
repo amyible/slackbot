@@ -52,7 +52,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       }
     })
     .then(function(response) {
-      var userAuthUrl = findUser(message.user, 'yo');
+      var userAuthUrl = findUser(message.user, slackUsername.name);
       console.log('userAuthUrl', userAuthUrl)
       // console.log('response', response);
       if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
