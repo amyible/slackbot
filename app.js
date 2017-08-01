@@ -42,14 +42,45 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   })
   .then(function(response) {
     console.log('response: ', response.data.result.fulfillment.speech);
-
-    rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
-    if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+    if(response.data.result.fulfillment.speech === 'Welcome to Scheduler Bot!') {
+      web.chat.postMessage(message.channel,
+    	    "Please connect your Google account",
+    	    { "attachments": [
+    	        {
+    	            "text": response.data.result.fulfillment.speech,
+    	            "fallback": "Error",
+    	            "callback_id": "confirm_task",
+    	            "color": "#3AA3E3",
+    	            "attachment_type": "default",
+    	            "actions": [
+    	                {
+    	                    "name": "confirm",
+    	                    "text": "Yes",
+    	                    "type": "button",
+    	                    "value": "yes",
+    	                },
+    	                {
+    	                    "name": "confirm",
+    	                    "text": "No",
+    	                    "type": "button",
+    	                    "value": "no"
+    	                }
+    	            ]
+    	        }
+    	    ]
+    		}, function(err, res){
+    			if (err) console.log('Error:', err);
+    			else console.log('Response', res);
+    			}
+    	);
+    } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+      rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
+    } else if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
       web.chat.postMessage(message.channel,
     	    "Does this look good?",
     	    { "attachments": [
     	        {
-    	            "text": "New task scheduled",
+    	            "text": response.data.result.fulfillment.speech,
     	            "fallback": "Error",
     	            "callback_id": "confirm_task",
     	            "color": "#3AA3E3",
