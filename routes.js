@@ -72,7 +72,6 @@ router.get('/success', function(req, res) {
     if(!err){
         oauth2Client.setCredentials(tokens);
         //tokens is an object that contains 'access_token', 'id_token', 'refresh_token', 'token_type' and 'expiry_date'
-
         //get the auth_id using JSON.parse(decodeURIComponent(req.query.state));
         const stateObj = JSON.parse(decodeURIComponent(req.query.state));
         const auth_id = stateObj.auth_id;
@@ -177,7 +176,4 @@ function addMeetings(auth, startDateTime, endDateTime, attendees, summary) {
 }
 
 
-module.exports = {
-  router,
-  findUser,
-};
+module.exports = router;

@@ -27,17 +27,16 @@ rtm.start();
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   console.log('message', message)
   var slackUsername = rtm.dataStore.getUserById(message.user);
-
+  console.log('username', slackUsername.name)
   var dm = rtm.dataStore.getDMByUserId(message.user);
-  if(!dm || dm.id !== message.user) {
+  console.log('dm: ', dm)
+  if(!dm || dm.user !== message.user) {
     return;
   }
-
-  console.log('username', slackUsername)
-
-  if(message.username === 'Schedulerbot' || message.user === 'U6GUMHLEA') {
+  if(message.username === 'Schedulerbot') {
     return;
   } else {
+    console.log('DOING AXIOS POST')
     axios({
       method: 'post',
       url: 'https://api.api.ai/v1/query?v=20150910',
