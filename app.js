@@ -24,14 +24,8 @@ var rtm = new RtmClient(token, { /*logLevel: 'debug'*/ });
 var webhook = new IncomingWebhook(url);
 rtm.start();
 
-// var slackUser = rtm.dataStore.getUserById(message.user);
-// if( ! slackUser) {
-//   throw new error()
-// }
-
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  console.log('message', message)
-  if(message.username === 'Schedulerbot' || message.user === 'U6GUMHLEA') {
+  if(message.username === 'Schedulerbot') {
     return;
   } else {
     axios({
@@ -51,12 +45,10 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     .then(function(response) {
       var userAuthUrl = findUser(message.user, 'yo');
       console.log('userAuthUrl', userAuthUrl)
-      console.log('response', response);
       if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
         console.log('WELCOMEEEEEEEEEE')
           var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
           rtm.sendMessage(finalmessage, message.channel)
-
       } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
         rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
 
