@@ -21,24 +21,26 @@ var scopes = [
 
 
 function findUser(slackId, slackName){
+  var returnVar = false;
   User.find({slack_id: slackId}, function(err, user){
       if(user.length !== 0){
         if(user[0].google_profile){
             oauth2Client.setCredentials(user[0].google_profile);
-            return true;
+            returnVar = true;
         }else{
-            return false;
+            returnVar = false;
         }
       }else{
         new User({
             slack_id: slackId,
             slack_name: slackName,
         }).save(function(err, user){
+            returnVar = false;
             console.log("save success");
         });
-        return false;
       }
   })
+  return returnVar;
 }
 
 // addAllDayEvents(oauth2Client, '2017-08-01', 'second testing');
@@ -72,7 +74,6 @@ router.get('/success', function(req, res) {
     if(!err){
         oauth2Client.setCredentials(tokens);
         //tokens is an object that contains 'access_token', 'id_token', 'refresh_token', 'token_type' and 'expiry_date'
-
         //get the auth_id using JSON.parse(decodeURIComponent(req.query.state));
         const stateObj = JSON.parse(decodeURIComponent(req.query.state));
         const auth_id = stateObj.auth_id;
@@ -177,7 +178,4 @@ function addMeetings(auth, startDateTime, endDateTime, attendees, summary) {
 }
 
 
-module.exports = {
-  router,
-  findUser,
-};
+module.exports = {router, findUser};
