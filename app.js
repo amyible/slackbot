@@ -30,12 +30,8 @@ rtm.start();
 // }
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-<<<<<<< HEAD
   console.log('message', message)
   if(message.username === 'Schedulerbot' || message.user === 'U6GUMHLEA') {
-=======
-  if(message.username === 'Schedulerbot' || message.username === 'schedulerbot') {
->>>>>>> f1e4ccc0f8d1d621555942f41c2e804c24b53a22
     return;
   } else {
     axios({
