@@ -1,4 +1,4 @@
-var mongoose = require 'mongoose';
+var mongoose = require ('mongoose');
 var connect = process.env.MONGODB_URI;
 
 var Schema = mongoose.Schema
