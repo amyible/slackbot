@@ -1,6 +1,7 @@
 var express = require('express');
 var request = require('request');
 var axios = require('axios');
+var apiai = require('apiai');
 
 var app = express();
 
@@ -11,6 +12,8 @@ var IncomingWebhook = require('@slack/client').IncomingWebhook;
 
 var token = process.env.SLACK_API_TOKEN || '';
 var url = process.env.SLACK_WEBHOOK_URL || '';
+
+var app = apiai("0363b04fac5d44899aa10b88294aa6cc");
 
 var web = new WebClient(token);
 var rtm = new RtmClient(token, { /*logLevel: 'debug'*/ });
@@ -33,7 +36,11 @@ rtm.start();
 // }
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  rtm.sendMessage(message.text, message.channel);
+  var request = app.textRequest(message, {
+      sessionId: message.user,
+  });
+  console.log(request);
+  rtm.sendMessage(request.query, message.channel);
 });
 
 rtm.on(RTM_EVENTS.USER_TYPING, function handleRtmTyping(message){
@@ -91,7 +98,7 @@ app.get('/oauth', function(req, res){
     } else {
         request({
             url: 'https://slack.com/api/oauth.access',
-            qs: {code: req.query.code, client_id: process.env.SLACK_CLIENT_ID, client_secret: process.env.SLACK_CLIENT_SECRET}, 
+            qs: {code: req.query.code, client_id: process.env.SLACK_CLIENT_ID, client_secret: process.env.SLACK_CLIENT_SECRET},
             method: 'GET',
         }, function (error, response, body) {
             if (error) {
