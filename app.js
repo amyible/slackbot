@@ -3,10 +3,10 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
-var path = require('path')
+var path = require('path');
+var { router, findUser } = require('./routes')
 
 var app = express();
-
 
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
@@ -44,37 +44,10 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   })
   .then(function(response) {
     console.log('response: ', response.data.result.fulfillment.speech);
-    if(response.data.result.fulfillment.speech === 'Welcome to Scheduler Bot!') {
-      web.chat.postMessage(message.channel,
-          response.data.result.fulfillment.speech,
-    	    { "attachments": [
-    	        {
-    	            "text": "Please connect your Google account",
-    	            "fallback": "Error",
-    	            "callback_id": "confirm_task",
-    	            "color": "#3AA3E3",
-    	            "attachment_type": "default",
-    	            "actions": [
-    	                {
-    	                    "name": "confirm",
-    	                    "text": "Yes",
-    	                    "type": "button",
-    	                    "value": "yes",
-    	                },
-    	                {
-    	                    "name": "confirm",
-    	                    "text": "No",
-    	                    "type": "button",
-    	                    "value": "no"
-    	                }
-    	            ]
-    	        }
-    	    ]
-    		}, function(err, res){
-    			if (err) console.log('Error:', err);
-    			else console.log('Response', res);
-    			}
-    	);
+    if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+      console.log('WELCOMEEEEEEEEEE')
+      var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
+      rtm.sendMessage(finalmessage, message.channel)
     } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
       rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
     } else if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
@@ -138,7 +111,7 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(require('./routes'));
+app.use(router);
 
 app.get('/', function(req, res){
 	res.send('Ngrok is working! Path Hit: ' + req.url);
