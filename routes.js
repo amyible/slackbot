@@ -21,24 +21,26 @@ var scopes = [
 
 
 function findUser(slackId, slackName){
+  var returnVar = false;
   User.find({slack_id: slackId}, function(err, user){
       if(user.length !== 0){
         if(user[0].google_profile){
             oauth2Client.setCredentials(user[0].google_profile);
-            return true;
+            returnVar = true;
         }else{
-            return false;
+            returnVar = false;
         }
       }else{
         new User({
             slack_id: slackId,
             slack_name: slackName,
         }).save(function(err, user){
+            returnVar = false;
             console.log("save success");
         });
-        return false;
       }
   })
+  return returnVar;
 }
 
 // addAllDayEvents(oauth2Client, '2017-08-01', 'second testing');
@@ -176,4 +178,4 @@ function addMeetings(auth, startDateTime, endDateTime, attendees, summary) {
 }
 
 
-module.exports = router;
+module.exports = {router, findUser};
