@@ -3,8 +3,10 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
+var path = require('path')
 
 var app = express();
+
 
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
@@ -44,10 +46,10 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     console.log('response: ', response.data.result.fulfillment.speech);
     if(response.data.result.fulfillment.speech === 'Welcome to Scheduler Bot!') {
       web.chat.postMessage(message.channel,
-    	    "Please connect your Google account",
+          response.data.result.fulfillment.speech,
     	    { "attachments": [
     	        {
-    	            "text": response.data.result.fulfillment.speech,
+    	            "text": "Please connect your Google account",
     	            "fallback": "Error",
     	            "callback_id": "confirm_task",
     	            "color": "#3AA3E3",
@@ -134,6 +136,9 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
 });
 
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(require('./routes'));
 
 app.get('/', function(req, res){
 	res.send('Ngrok is working! Path Hit: ' + req.url);
