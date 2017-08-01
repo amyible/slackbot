@@ -25,7 +25,6 @@ var webhook = new IncomingWebhook(url);
 rtm.start();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  console.log('message', message)
   var slackUsername = rtm.dataStore.getUserById(message.user);
   console.log('username', slackUsername.name)
   var dm = rtm.dataStore.getDMByUserId(message.user);
