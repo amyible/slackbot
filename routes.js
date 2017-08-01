@@ -82,7 +82,7 @@ router.get('/success', function(req, res) {
 
         // update the user document with new google_profile
         // don't know if this syntax works
-        User.findByIdAndUpdate(auth_id, {
+        User.update({slack_id: auth_id}, {
           $set: {google_profile: tokens}
         }, function(err, user){
           if(!err) {
