@@ -1,5 +1,6 @@
 var express = require('express');
 var request = require('request');
+var axios = require('axios');
 var apiai = require('apiai');
 
 var app = express();
@@ -11,6 +12,7 @@ var IncomingWebhook = require('@slack/client').IncomingWebhook;
 
 var token = process.env.SLACK_API_TOKEN || '';
 var url = process.env.SLACK_WEBHOOK_URL || '';
+var apitoken = process.env.API_ACCESS_TOKEN;
 
 var application = apiai("0363b04fac5d44899aa10b88294aa6cc");
 
@@ -19,48 +21,91 @@ var rtm = new RtmClient(token, { /*logLevel: 'debug'*/ });
 var webhook = new IncomingWebhook(url);
 rtm.start();
 
+// function AIpost(message) {
+//   console.log(message);
+//   return axios({
+//     'method': 'post',
+//     'url': 'http://api.api.ai/query?v=20150910',
+//     'Headers': {
+//       'Authorization': 'Bearer ' + token, // This should be the slack api token
+//       'Content-Type': 'application/json; charset=utf-8',
+//     },
+//     'data': {
+//       'query': message.text,
+//       'sessionId': message.user,
+//       'lang': 'en',
+//       // timezone: new Date(),
+//     }
+//   })
+//   .then(function(response) {
+//     console.log('response', response);
+//   })
+//   .catch(function(err) {
+//     console.log('Error: ', err);
+//   })
+// }
+
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  console.log('message', message)
-  var request = application.textRequest(message, {
+  axios({
+    method: 'post',
+    url: 'https://api.api.ai/v1/query?v=20150910',
+    headers: {
+      'Authorization': 'Bearer ' + apitoken, // This should be the slack api token
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    data: {
+      query: message.text,
       sessionId: message.user,
-  });
-  console.log('WHAT I GOT: ',request);
-  rtm.sendMessage(request.query.text, message.channel);
+      lang: 'en',
+      //timezone: new Date(),
+    }
+  })
+  .then(function(response) {
+    console.log('response: ', response.data.result.fulfillment.speech);
+
+    rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
+    if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+      web.chat.postMessage(message.channel,
+    	    "Does this look good?",
+    	    { "attachments": [
+    	        {
+    	            "text": "New task scheduled",
+    	            "fallback": "Error",
+    	            "callback_id": "confirm_task",
+    	            "color": "#3AA3E3",
+    	            "attachment_type": "default",
+    	            "actions": [
+    	                {
+    	                    "name": "confirm",
+    	                    "text": "Yes",
+    	                    "type": "button",
+    	                    "value": "yes"
+    	                },
+    	                {
+    	                    "name": "confirm",
+    	                    "text": "No",
+    	                    "type": "button",
+    	                    "value": "no"
+    	                }
+    	            ]
+    	        }
+    	    ]
+    		}, function(err, res){
+    			if (err) console.log('Error:', err);
+    			else console.log('Response', res);
+    			}
+    	);
+    }
+  })
+  .catch(function(err) {
+    console.log('Error: ', err);
+  })
 });
 
 rtm.on(RTM_EVENTS.USER_TYPING, function handleRtmTyping(message){
 	// var result = AIpost(message);
 	// console.log("result is:", result);
-	web.chat.postMessage(message.channel,
-	    "Does this look good?",
-	    { "attachments": [
-	        {
-	            "text": "New task scheduled",
-	            "fallback": "Error",
-	            "callback_id": "confirm_task",
-	            "color": "#3AA3E3",
-	            "attachment_type": "default",
-	            "actions": [
-	                {
-	                    "name": "confirm",
-	                    "text": "Yes",
-	                    "type": "button",
-	                    "value": "yes"
-	                },
-	                {
-	                    "name": "confirm",
-	                    "text": "No",
-	                    "type": "button",
-	                    "value": "no"
-	                }
-	            ]
-	        }
-	    ]
-		}, function(err, res){
-			if (err) console.log('Error:', err);
-			else console.log('Response', res);
-			}
-	);
+
 })
 
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
