@@ -25,11 +25,11 @@ var webhook = new IncomingWebhook(url);
 rtm.start();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  console.log('message', message)
+  // console.log('message', message)
   var slackUsername = rtm.dataStore.getUserById(message.user);
   console.log('username', slackUsername.name)
   var dm = rtm.dataStore.getDMByUserId(message.user);
-  console.log('dm: ', dm)
+  // console.log('dm: ', dm)
   if(!dm || dm.user !== message.user) {
     return;
   }
@@ -54,6 +54,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     .then(function(response) {
       var userAuthUrl = findUser(message.user, 'yo');
       console.log('userAuthUrl', userAuthUrl)
+      // console.log('response', response);
       if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
         console.log('WELCOMEEEEEEEEEE')
           var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
