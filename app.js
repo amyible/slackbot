@@ -56,7 +56,13 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     	                    "name": "confirm",
     	                    "text": "Yes",
     	                    "type": "button",
-    	                    "value": "yes"
+    	                    "value": "yes",
+                          "confirm": {
+                              "title": "Are you sure?",
+                              "text": "This will add a calendar reminder to your google acount",
+                              "ok_text": "Yes",
+                              "dismiss_text": "No"
+                          }
     	                },
     	                {
     	                    "name": "confirm",
