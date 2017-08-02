@@ -19,39 +19,6 @@ var scopes = [
   'https://www.googleapis.com/auth/calendar'
 ];
 
-// function findUser(slackId){
-//   var query = User.find({slack_id: slackId});
-//   return query
-// }
-
-// function findUser(slackId, slackName){
-//   let result;
-//   User.find({slack_id: slackId}, function(err, user){
-//       if (err) console.log("Err", err);
-//       if(user.length !== 0){
-//         if(user[0].google_profile){
-//             console.log(oauth2Client)
-//             oauth2Client.setCredentials(user[0].google_profile);
-//             result = true;
-//         }else{
-//             result = false;
-//         }
-//       }else{
-//         new User({
-//             slack_id: slackId,
-//             slack_name: slackName,
-//         }).save(function(err, user){
-//             console.log("save success");
-//         });
-//         result = false;
-//       }
-//   })
-//   .then(function(response) {
-//     console.log("res",result)
-//     return result;
-//   })
-// }
-
 // addAllDayEvents(oauth2Client, '2017-08-01', 'second testing');
 // var attendees = [
 //   {
@@ -167,8 +134,8 @@ function addAllDayEvents(date, summary, token) {
 function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   startDateTime.toISOString();
   endDateTime.toISOString();
-  startDateTime = startDateTime.replace("Z","");
-  endDateTime = endDateTime.replace("Z","");
+  // startDateTime = replace(startDateTime, "Z","");
+  // endDateTime = replace(endDateTime, "Z","");
 
   if(token.expiry_date < new Date()){
     oauth2Client.setCredentials(token);
