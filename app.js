@@ -229,7 +229,7 @@ app.get('/oauth', function(req, res){
 app.post('/interact', function(req, res) {
 	if (req.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
 	else {
-		var answer = JSON.parse(req.body.payload)
+		var answer = JSON.parse(req.body.payload);
 		console.log("Got it! You answered:", answer.actions[0].value);
 		res.send('Ok');
 	}
