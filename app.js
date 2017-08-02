@@ -4,7 +4,7 @@ var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
 var path = require('path');
-var { router, addAllDayEvents } = require('./routes');
+var { router, addAllDayEvents, addMeetings } = require('./routes');
 var models = require('./models/models');
 var User = models.User;
 var Reminder = models.Reminder;
@@ -27,6 +27,7 @@ var rtm = new RtmClient(token, { /*logLevel: 'debug'*/ });
 var webhook = new IncomingWebhook(url);
 rtm.start();
 
+var reponseJSON;
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   // console.log('message', message)
   var slackUsername = rtm.dataStore.getUserById(message.user);
@@ -54,6 +55,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     })
     .then(function(response) {
       //var userAuthUrl = findUser(message.user, slackUsername.name);
+      responseJSON = response;
       let result;
        return User.find({slack_id: message.user}, function(err, user){
         if (err) console.log("Err", err);
@@ -75,6 +77,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         }
     })
     .then(function(resp) {
+      // console.log('resp', resp);
       if (result === false && response.data.result.fulfillment.speech.includes('https://f56ff239.ngrok.io/connect')) {
         var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
         rtm.sendMessage(finalmessage, message.channel);
@@ -96,19 +99,56 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                       "attachment_type": "default",
                       "actions": [
                           {
-                              "name": "confirm",
+                              "name": "confirm task",
                               "text": "Yes",
                               "type": "button",
                               "value": "yes",
                               "confirm": {
-                                  "title": "Are you sure?",
+                                  "title": "Are you sure you want to add this task?",
                                   "text": "This will add a calendar reminder to your google account",
                                   "ok_text": "Yes",
                                   "dismiss_text": "No"
                              }
                           },
                           {
-                              "name": "confirm",
+                              "name": "confirm task",
+                              "text": "No",
+                              "type": "button",
+                              "value": "no"
+                          }
+                      ]
+                  }
+              ]
+            }, function(err, res){
+              if (err) console.log('Error:', err);
+              else console.log('Response', res);
+              }
+          );
+        } else if(response.data.result.fulfillment.speech.includes('Alright! Scheduling')) {
+          web.chat.postMessage(message.channel,
+              "Does this look good?",
+              { "attachments": [
+                  {
+                      "text": response.data.result.fulfillment.speech,
+                      "fallback": "Error",
+                      "callback_id": "confirm_meeting",
+                      "color": "#3AA3E3",
+                      "attachment_type": "default",
+                      "actions": [
+                          {
+                              "name": "confirm meeting",
+                              "text": "Yes",
+                              "type": "button",
+                              "value": "yes",
+                              "confirm": {
+                                  "title": "Are you sure you want to add this meeting?",
+                                  "text": "This will add a calendar reminder to your google account",
+                                  "ok_text": "Yes",
+                                  "dismiss_text": "No"
+                             }
+                          },
+                          {
+                              "name": "confirm meeting",
                               "text": "No",
                               "type": "button",
                               "value": "no"
@@ -230,29 +270,65 @@ app.post('/interact', function(req, res) {
 	//if (req.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
 	//else {
 		var answer = JSON.parse(req.body.payload);
-    console.log(answer.original_message.attachments);
+    console.log('answer', answer);
     if (answer.actions[0].value === 'yes') {
-      var splitted = answer.original_message.attachments[0].text.split(' ');
-      splitted.splice(0, 5);
-      var day = splitted.pop(); splitted.pop();
-      var subject = splitted.join(' ');
-      console.log('subject: ', subject);
-      console.log('day: ', day);
+      if(answer.actions[0].name === 'confirm task') {
+        var splitted = answer.original_message.attachments[0].text.split(' ');
+        splitted.splice(0, 5);
+        var day = splitted.pop(); splitted.pop();
+        var subject = splitted.join(' ');
+        console.log('subject: ', subject);
+        console.log('day: ', day);
+        User.find({slack_id: answer.user.id})
+        .exec(function(err, user){
+            console.log("USER", user);
+            if(user.length > 0){
+                addAllDayEvents(day, subject, user[0].google_profile);
+                new Reminder({
+                    time: day,
+                    subject: subject,
+                    user: user[0],
+                }).save(function(err){ if(!err) console.log('successfully saved an all day event!') })
+            }else{
+              console.log('cannot find user');
+            }
+        })
+      }
 
-      User.find({slack_id: answer.user.id})
-      .exec(function(err, user){
-          console.log("USER", user);
-          if(user.length > 0){
-              addAllDayEvents(day, subject, user[0].google_profile);
-              new Reminder({
-                  time: day,
-                  subject: subject,
-                  user: user[0],
-              }).save(function(err){ if(!err) console.log('successfully saved an all day event!') })
-          }else{
-            console.log('cannot find user');
+      if(answer.actions[0].name === 'confirm meeting') {
+        var splitted = answer.original_message.attachments[0].text.split(' ');
+        console.log('splitted', splitted);
+        var dateString = splitted[5]
+        var timeString = splitted[7];
+        var startdatetime = new Date(dateString + ' ' + timeString);
+        var enddatetime = startdatetime; enddatetime.setHours(startdatetime.getHours() + 1);
+
+        var attendees1 = [];
+        splitted.forEach(function(item) {
+          if(item.includes('@')) {
+            attendees1.push(item);
           }
-      })
+        })
+        var attendeesFinal = [];
+        attendees1.forEach(function(item) {
+          if(item.includes('.')){
+            item = item.slice(0, -1);
+          }
+          attendeesFinal.push(item.slice(5, item.length));
+        })
+
+        var summary = responseJSON.data.result.parameters.subject;
+        console.log('summary', summary)
+
+        User.find({slack_id: answer.user.id})
+        .exec(function(err, user){
+            if(user.length > 0){
+                addMeetings(startdatetime, enddatetime, attendeesFinal, summary, user[0].google_profile);
+            }else{
+              console.log('cannot find user');
+            }
+        })
+      }
       res.send('Taken care of!');
     } else res.send('Aw ok then.');
 	//}

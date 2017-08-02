@@ -208,4 +208,5 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
 module.exports = {
   router,
   addAllDayEvents,
+  addMeetings,
 };
