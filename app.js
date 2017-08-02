@@ -301,8 +301,8 @@ app.post('/interact', function(req, res) {
         var dateString = splitted[5]
         var timeString = splitted[7];
         var startdatetime = new Date(dateString + '' + timeString);
-        console.log('startdatetime: ', startdatetime)
-        var enddatetime = startdatetime; enddatetime.setHours(startdatetime.getHours() + 1);
+        var enddatetime =  new Date(dateString + '' + timeString);
+        enddatetime.setTime(startdatetime.getTime() + 3600000);
         console.log('startdatetime: ', startdatetime)
         console.log('enddatetime: ', enddatetime)
 
@@ -327,7 +327,7 @@ app.post('/interact', function(req, res) {
             attendeesEmail.push(user[0].slack_email);
           })
         });
-        console.log(attendeesEmail);
+        console.log('attendeesEmail', attendeesEmail);
 
         var summary = responseJSON.data.result.parameters.subject;
         console.log('summary', summary)
