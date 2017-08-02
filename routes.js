@@ -134,7 +134,7 @@ function listEvents(auth) {
 }
 
 function addAllDayEvents(date, summary, token) {
-  oauth2Client.setCredentials(tokens);
+  oauth2Client.setCredentials(token);
   var calendar = google.calendar('v3');
   var event = {
     'summary': summary,
