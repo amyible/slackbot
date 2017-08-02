@@ -181,12 +181,10 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   var event = {
     'summary': summary,
     'start': {
-      'dateTime': startDateTime,
-      'timeZone': 'America/Los_Angeles',
+      'dateTime': startDateTime.toISOString(),
     },
     'end': {
-      'dateTime': endDateTime,
-      'timeZone': 'America/Los_Angeles',
+      'dateTime': endDateTime.toISOString(),
     },
     "attendees": attendees,
   };

@@ -317,13 +317,22 @@ app.post('/interact', function(req, res) {
           attendeesFinal.push(item.slice(5, item.length));
         })
 
+        var attendeesEmail = [];
+        attendeesFinal.forEach(function(item) {
+          User.find({slack_name: item})
+          .exec(function(err, user){
+            attendeesEmail.push(user[0].slack_email);
+          })
+        });
+        console.log(attendeesEmail);
+
         var summary = responseJSON.data.result.parameters.subject;
         console.log('summary', summary)
 
         User.find({slack_id: answer.user.id})
         .exec(function(err, user){
             if(user.length > 0){
-                addMeetings(startdatetime, enddatetime, attendeesFinal, summary, user[0].google_profile);
+                addMeetings(startdatetime, enddatetime, attendeesEmail, summary, user[0].google_profile);
             }else{
               console.log('cannot find user');
             }
