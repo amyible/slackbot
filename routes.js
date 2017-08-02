@@ -146,11 +146,9 @@ function addAllDayEvents(date, summary, token) {
     'summary': summary,
     'start': {
       'date': date,
-      'timeZone': 'America/Los_Angeles',
     },
     'end': {
       'date': date,
-      'timeZone': 'America/Los_Angeles',
     },
   };
   calendar.events.insert({
@@ -167,6 +165,10 @@ function addAllDayEvents(date, summary, token) {
 }
 
 function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
+  startDateTime.toISOString();
+  endDateTime.toISOString();
+  startDateTime = startDateTime.replace("Z","");
+  endDateTime = endDateTime.replace("Z","");
 
   if(token.expiry_date < new Date()){
     oauth2Client.setCredentials(token);
@@ -181,10 +183,10 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   var event = {
     'summary': summary,
     'start': {
-      'dateTime': startDateTime.toISOString(),
+      'dateTime': startDateTime,
     },
     'end': {
-      'dateTime': endDateTime.toISOString(),
+      'dateTime': endDateTime,
     },
     "attendees": attendees,
   };
