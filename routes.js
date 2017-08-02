@@ -159,7 +159,7 @@ function addAllDayEvents(date, summary) {
   });
 }
 
-function addMeetings(auth, startDateTime, endDateTime, attendees, summary) {
+function addMeetings(startDateTime, endDateTime, attendees, summary) {
   var calendar = google.calendar('v3');
   var event = {
     'summary': summary,
@@ -174,7 +174,7 @@ function addMeetings(auth, startDateTime, endDateTime, attendees, summary) {
     "attendees": attendees,
   };
   calendar.events.insert({
-    auth: auth,
+    auth: oauth2Client,
     calendarId: 'primary',
     resource: event,
   }, function(err, event) {
