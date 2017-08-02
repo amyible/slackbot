@@ -297,11 +297,15 @@ app.post('/interact', function(req, res) {
 
       if(answer.actions[0].name === 'confirm meeting') {
         var splitted = answer.original_message.attachments[0].text.split(' ');
-        console.log('splitted', splitted);
+        // console.log('splitted', splitted);
         var dateString = splitted[5]
         var timeString = splitted[7];
         var startdatetime = new Date(dateString + ' ' + timeString);
-        var enddatetime = startdatetime; enddatetime.setHours(startdatetime.getHours() + 1);
+        var enddatetime =  new Date(dateString + ' ' + timeString);
+        enddatetime.setTime(enddatetime.getTime() + 3600000 - 25200000);
+        startdatetime.setTime(startdatetime.getTime() - 25200000)
+        console.log('startdatetime: ', startdatetime)
+        console.log('enddatetime: ', enddatetime)
 
         var attendees1 = [];
         splitted.forEach(function(item) {
@@ -317,17 +321,28 @@ app.post('/interact', function(req, res) {
           attendeesFinal.push(item.slice(5, item.length));
         })
 
-        var summary = responseJSON.data.result.parameters.subject;
-        console.log('summary', summary)
-
-        User.find({slack_id: answer.user.id})
-        .exec(function(err, user){
-            if(user.length > 0){
-                addMeetings(startdatetime, enddatetime, attendeesFinal, summary, user[0].google_profile);
-            }else{
-              console.log('cannot find user');
-            }
-        })
+        User.find({
+          'slack_id': { $in: attendeesFinal}
+        }), function(err, docs) {
+          console.log('docs:', docs);
+        }
+        // attendeesFinal.forEach(function(item) {
+        //   var user = User.find({slack_id: item})
+        //   attendeesEmail.push(user[0].slack_email);
+        // });
+        // console.log('attendeesEmail', attendeesEmail);
+        //
+        // var summary = responseJSON.data.result.parameters.subject;
+        // console.log('summary', summary)
+        //
+        // User.find({slack_id: answer.user.id})
+        // .exec(function(err, user){
+        //     if(user.length > 0){
+        //         addMeetings(startdatetime, enddatetime, attendeesEmail, summary, user[0].google_profile);
+        //     }else{
+        //       console.log('cannot find user');
+        //     }
+        // })
       }
       res.send('Taken care of!');
     } else res.send('Aw ok then.');
