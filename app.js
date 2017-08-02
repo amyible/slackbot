@@ -7,6 +7,7 @@ var path = require('path');
 var { router, addAllDayEvents } = require('./routes');
 var models = require('./models/models');
 var User = models.User;
+var Reminder = models.Reminder;
 
 var app = express();
 
@@ -237,7 +238,7 @@ app.post('/interact', function(req, res) {
       var subject = splitted.join(' ');
       console.log('subject: ', subject);
       console.log('day: ', day);
-      
+
       User.find({slack_id: answer.user.id})
       .exec(function(err, user){
           console.log("USER", user);
