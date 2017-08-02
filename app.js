@@ -321,24 +321,30 @@ app.post('/interact', function(req, res) {
           attendeesFinal.push(item.slice(5, item.length));
         })
 
-        var attendeesEmail = [];
-
-        attendeesFinal.forEach(function(item) {
-          var user = await User.find({slack_id: item})
-          attendeesEmail.push(user[0].slack_email);
-        });
-        console.log('attendeesEmail', attendeesEmail);
-
+//---------------------------------------------try==============================================
         var summary = responseJSON.data.result.parameters.subject;
         console.log('summary', summary)
 
-        User.find({slack_id: answer.user.id})
-        .exec(function(err, user){
-            if(user.length > 0){
-                addMeetings(startdatetime, enddatetime, attendeesEmail, summary, user[0].google_profile);
-            }else{
-              console.log('cannot find user');
-            }
+        User.find()
+        //{slack_id: answer.user.id}
+        .exec(function(err, users){
+            var attendeesEmail = [];
+            var meetingOrganizer;
+            users.forEach(function(user) {
+                if(user.slack_id === answer.user.id){
+                    attendeesEmail.push(user.slack_email);
+                    meetingOrganizer = user;
+                }else{
+                  attendeesFinal.forEach((id) {
+                      if(user.slack_id === id){
+                          attendeesEmail.push(user.slack_email);
+                      }
+                  });
+                }
+            });
+            console.log('attendeesEmail', attendeesEmail);
+            addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
+          }
         })
       }
       res.send('Taken care of!');
