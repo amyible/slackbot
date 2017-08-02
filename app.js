@@ -297,11 +297,14 @@ app.post('/interact', function(req, res) {
 
       if(answer.actions[0].name === 'confirm meeting') {
         var splitted = answer.original_message.attachments[0].text.split(' ');
-        console.log('splitted', splitted);
+        // console.log('splitted', splitted);
         var dateString = splitted[5]
         var timeString = splitted[7];
-        var startdatetime = new Date(dateString + ' ' + timeString);
+        var startdatetime = new Date(dateString + '' + timeString);
+        console.log('startdatetime: ', startdatetime)
         var enddatetime = startdatetime; enddatetime.setHours(startdatetime.getHours() + 1);
+        console.log('startdatetime: ', startdatetime)
+        console.log('enddatetime: ', enddatetime)
 
         var attendees1 = [];
         splitted.forEach(function(item) {
