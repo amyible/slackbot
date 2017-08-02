@@ -81,7 +81,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         rtm.sendMessage(finalmessage, message.channel);
         return;
       } else if(result === true && response.data.result.fulfillment.speech.includes('https://f56ff239.ngrok.io/connect')){
-        rtm.sendMessage('Already logged in to Google!', message.channel);
+        rtm.sendMessage('Hello! You are already logged in to Google!', message.channel);
         return;
       }
       if(!response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
