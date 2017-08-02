@@ -133,7 +133,7 @@ function listEvents(auth) {
   });
 }
 
-function addAllDayEvents(auth, date, summary) {
+function addAllDayEvents(date, summary) {
   var calendar = google.calendar('v3');
   var event = {
     'summary': summary,
@@ -147,7 +147,7 @@ function addAllDayEvents(auth, date, summary) {
     },
   };
   calendar.events.insert({
-    auth: auth,
+    auth: oauth2Client,
     calendarId: 'primary',
     resource: event,
   }, function(err, event) {
@@ -189,5 +189,5 @@ function addMeetings(auth, startDateTime, endDateTime, attendees, summary) {
 
 module.exports = {
   router,
-  //findUser,
+  addAllDayEvents,
 };

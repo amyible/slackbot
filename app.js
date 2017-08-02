@@ -4,7 +4,7 @@ var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
 var path = require('path');
-var { router } = require('./routes');
+var { router, addAllDayEvents } = require('./routes');
 var models = require('./models/models');
 var User = models.User;
 
@@ -102,10 +102,10 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                               "value": "yes",
                               "confirm": {
                                   "title": "Are you sure?",
-                                  "text": "This will add a calendar reminder to your google acount",
+                                  "text": "This will add a calendar reminder to your google account",
                                   "ok_text": "Yes",
                                   "dismiss_text": "No"
-                              }
+                             }
                           },
                           {
                               "name": "confirm",
@@ -227,12 +227,21 @@ app.get('/oauth', function(req, res){
 });
 
 app.post('/interact', function(req, res) {
-	if (req.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
-	else {
+	//if (req.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
+	//else {
 		var answer = JSON.parse(req.body.payload);
-		console.log("Got it! You answered:", answer.actions[0].value);
-		res.send('Ok');
-	}
+    console.log(answer.original_message.attachments);
+    if (answer.actions[0].value === 'yes') {
+      var splitted = answer.original_message.attachments[0].text.split(' ');
+      splitted.splice(0, 5);
+      var day = splitted.pop(); splitted.pop();
+      var subject = splitted.join(' ');
+      console.log('subject: ', subject);
+      console.log('day: ', day);
+
+      res.send('Taken care of!');
+    } else res.send('Aw ok then.');
+	//}
 })
 
 var port = process.env.PORT || 3000;
