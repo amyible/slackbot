@@ -133,14 +133,14 @@ function listEvents(auth) {
   });
 }
 
-function addAllDayEvents(date, summary, tokens) {
-  if(tokens.expiry_date < new Date()){
+function addAllDayEvents(date, summary, token) {
+  if(token.expiry_date < new Date()){
+    oauth2Client.setCredentials(token);
     oauth2Client.refreshAccessToken(function(err, tokens) {
-        oauth2Client.setCredentials(tokens);
         console.log('token refreshed');
     });
   }else{
-    oauth2Client.setCredentials(tokens);
+    oauth2Client.setCredentials(token);
   }
   var calendar = google.calendar('v3');
   var event = {
@@ -167,7 +167,17 @@ function addAllDayEvents(date, summary, tokens) {
   });
 }
 
-function addMeetings(startDateTime, endDateTime, attendees, summary) {
+function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
+
+  if(token.expiry_date < new Date()){
+    oauth2Client.setCredentials(token);
+    oauth2Client.refreshAccessToken(function(err, tokens) {
+        console.log('token refreshed');
+    });
+  }else{
+    oauth2Client.setCredentials(token);
+  }
+
   var calendar = google.calendar('v3');
   var event = {
     'summary': summary,
