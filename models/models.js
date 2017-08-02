@@ -32,7 +32,7 @@ var meetingSchema = new Schema({
 
 var User = mongoose.model('User', userSchema);
 var Reminder = mongoose.model('Reminder', reminderSchema);
-var meetingSchema = mongoose.model('Meeting', meetingSchema);
+var Meeting = mongoose.model('Meeting', meetingSchema);
 
 module.exports = {
   User: User,
