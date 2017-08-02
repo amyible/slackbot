@@ -61,7 +61,6 @@ var scopes = [
 // listEvents(oauth2Client);
 // addMeetings(oauth2Client, '2017-08-01T13:00:00+00:00', '2017-08-01T14:00:00+00:00', attendees, "example meeting");
 
-
 //this is the route that will redirect to google oauth
 router.get('/connect', function(req, res) {
   //setting up google oauth redirect url
@@ -208,4 +207,5 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
 module.exports = {
   router,
   addAllDayEvents,
+  addMeetings,
 };
