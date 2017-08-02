@@ -136,6 +136,7 @@ function listEvents(auth) {
 function addAllDayEvents(date, summary, tokens) {
   if(tokens.expiry_date < new Date()){
     oauth2Client.refreshAccessToken(function(err, tokens) {
+        oauth2Client.setCredentials(tokens);
         console.log('token refreshed');
     });
   }else{

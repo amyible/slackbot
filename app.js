@@ -241,7 +241,8 @@ app.post('/interact', function(req, res) {
       console.log('day: ', day);
       User.find({slack_id: answer.user.id})
       .exec(function(err, user){
-          addAllDayEvents(day, subject, user.google_profile);
+          console.log("USER", user);
+          addAllDayEvents(day, subject, user[0].google_profile);
           if(user.length !== 0){
               new Reminder({
                   time: day,
