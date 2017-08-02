@@ -133,7 +133,8 @@ function listEvents(auth) {
   });
 }
 
-function addAllDayEvents(date, summary) {
+function addAllDayEvents(date, summary, token) {
+  oauth2Client.setCredentials(tokens);
   var calendar = google.calendar('v3');
   var event = {
     'summary': summary,
