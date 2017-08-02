@@ -300,8 +300,8 @@ app.post('/interact', function(req, res) {
         // console.log('splitted', splitted);
         var dateString = splitted[5]
         var timeString = splitted[7];
-        var startdatetime = new Date(dateString + '' + timeString);
-        var enddatetime =  new Date(dateString + '' + timeString);
+        var startdatetime = new Date(dateString + ' ' + timeString);
+        var enddatetime =  new Date(dateString + ' ' + timeString);
         enddatetime.setTime(startdatetime.getTime() + 3600000);
         console.log('startdatetime: ', startdatetime)
         console.log('enddatetime: ', enddatetime)
