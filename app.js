@@ -321,11 +321,10 @@ app.post('/interact', function(req, res) {
         })
 
         var attendeesEmail = [];
+
         attendeesFinal.forEach(function(item) {
-          User.find({slack_id: item})
-          .exec(function(err, user){
-            attendeesEmail.push(user[0].slack_email);
-          })
+          var user = await User.find({slack_id: item})
+          attendeesEmail.push(user[0].slack_email);
         });
         console.log('attendeesEmail', attendeesEmail);
 
