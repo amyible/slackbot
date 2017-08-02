@@ -4,7 +4,7 @@ var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
 var path = require('path');
-var { router } = require('./routes');
+var { router, addAllDayEvents } = require('./routes');
 var models = require('./models/models');
 var User = models.User;
 
@@ -226,12 +226,20 @@ app.get('/oauth', function(req, res){
 });
 
 app.post('/interact', function(req, res) {
-  console.log("PAYLOAD", req.body.payload);
 	//if (req.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
 	//else {
-		var answer = JSON.parse(req.body.payload)
-    if (answer.actions[0].value === 'yes') res.send('Taken care of!');
-		else res.send('Aw ok then.');
+		var answer = JSON.parse(req.body.payload);
+    console.log(answer.original_message.attachments);
+    if (answer.actions[0].value === 'yes') {
+      var splitted = answer.original_message.attachments[0].text.split(' ');
+      splitted.splice(0, 5);
+      var day = splitted.pop(); splitted.pop();
+      var subject = splitted.join(' ');
+      console.log('subject: ', subject);
+      console.log('day: ', day);
+
+      res.send('Taken care of!');
+    } else res.send('Aw ok then.');
 	//}
 })
 
