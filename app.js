@@ -76,7 +76,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     })
     .then(function(resp) {
       if (result === false && response.data.result.fulfillment.speech.includes('https://f56ff239.ngrok.io/connect')) {
-        var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
+        var finalmessage = "Welcome to Scheduler Bot! Please go to " + process.env.CONNECT_URL + '/connect?auth_id=' + message.user;
         rtm.sendMessage(finalmessage, message.channel);
         return;
       } else if(result === true && response.data.result.fulfillment.speech.includes('https://f56ff239.ngrok.io/connect')){
