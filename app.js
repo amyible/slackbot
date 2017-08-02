@@ -57,9 +57,8 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       let result;
        return User.find({slack_id: message.user}, function(err, user){
         if (err) console.log("Err", err);
-        if(user.length !== 0){
+        if(user.length > 0){
           if(user[0].google_profile){
-              //oauth2Client.setCredentials(user[0].google_profile);
               result = true;
           }else{
               result = false;
@@ -243,7 +242,7 @@ app.post('/interact', function(req, res) {
       User.find({slack_id: answer.user.id})
       .exec(function(err, user){
           console.log("USER", user);
-          if(user.length !== 0){
+          if(user.length > 0){
               addAllDayEvents(day, subject, user[0].google_profile);
               new Reminder({
                   time: day,
