@@ -7,6 +7,7 @@ var path = require('path');
 var { router, addAllDayEvents } = require('./routes');
 var models = require('./models/models');
 var User = models.User;
+var Reminder = models.Reminder;
 
 var app = express();
 
@@ -56,9 +57,8 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       let result;
        return User.find({slack_id: message.user}, function(err, user){
         if (err) console.log("Err", err);
-        if(user.length !== 0){
+        if(user.length > 0){
           if(user[0].google_profile){
-              //oauth2Client.setCredentials(user[0].google_profile);
               result = true;
           }else{
               result = false;
@@ -80,7 +80,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         rtm.sendMessage(finalmessage, message.channel);
         return;
       } else if(result === true && response.data.result.fulfillment.speech.includes('https://f56ff239.ngrok.io/connect')){
-        rtm.sendMessage('Already logged in to Google!', message.channel);
+        rtm.sendMessage('Hello! You are already logged in to Google!', message.channel);
         return;
       }
       if(!response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
@@ -238,11 +238,11 @@ app.post('/interact', function(req, res) {
       var subject = splitted.join(' ');
       console.log('subject: ', subject);
       console.log('day: ', day);
-      
+
       User.find({slack_id: answer.user.id})
       .exec(function(err, user){
           console.log("USER", user);
-          if(user.length !== 0){
+          if(user.length > 0){
               addAllDayEvents(day, subject, user[0].google_profile);
               new Reminder({
                   time: day,
