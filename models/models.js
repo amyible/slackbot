@@ -21,12 +21,21 @@ var reminderSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User'
   }
-})
+});
+
+var meetingSchema = new Schema({
+  startTime: Date,
+  endTime: Date,
+  invitees: Array,
+  subject: String,
+});
 
 var User = mongoose.model('User', userSchema);
 var Reminder = mongoose.model('Reminder', reminderSchema);
+var meetingSchema = mongoose.model('Meeting', meetingSchema);
 
 module.exports = {
   User: User,
   Reminder: Reminder,
+  Meeting: Meeting,
 };
