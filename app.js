@@ -7,7 +7,6 @@ var path = require('path');
 var { router, addAllDayEvents } = require('./routes');
 var models = require('./models/models');
 var User = models.User;
-var Reminder = models.Reminder;
 
 var app = express();
 
@@ -73,7 +72,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
           });
           result = false;
         }
-        console.log('result', result);
     })
     .then(function(resp) {
       if (result === false && response.data.result.fulfillment.speech.includes('https://f56ff239.ngrok.io/connect')) {
@@ -239,20 +237,6 @@ app.post('/interact', function(req, res) {
       var subject = splitted.join(' ');
       console.log('subject: ', subject);
       console.log('day: ', day);
-      User.find({slack_id: answer.user.id})
-      .exec(function(err, user){
-          console.log("USER", user);
-          addAllDayEvents(day, subject, user[0].google_profile);
-          if(user.length !== 0){
-              new Reminder({
-                  time: day,
-                  subject: subject,
-                  user: user[0],
-              }).save(function(err){ if(!err) console.log('successfully saved an all day event!') })
-          }else{
-            console.log('cannot find user');
-          }
-      })
 
       res.send('Taken care of!');
     } else res.send('Aw ok then.');
