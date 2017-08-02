@@ -319,7 +319,7 @@ app.post('/interact', function(req, res) {
 
         var attendeesEmail = [];
         attendeesFinal.forEach(function(item) {
-          User.find({slack_name: item})
+          User.find({slack_id: item})
           .exec(function(err, user){
             attendeesEmail.push(user[0].slack_email);
           })
