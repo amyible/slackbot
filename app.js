@@ -78,12 +78,11 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         }
     })
     .then(function(resp) {
-      // console.log('resp', resp);
-      if (result === false && response.data.result.fulfillment.speech.includes('https://f56ff239.ngrok.io/connect')) {
+      if (result === false && response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')) {
         var finalmessage = "Welcome to Scheduler Bot! Please go to " + process.env.CONNECT_URL + '/connect?auth_id=' + message.user;
         rtm.sendMessage(finalmessage, message.channel);
         return;
-      } else if(result === true && response.data.result.fulfillment.speech.includes('https://f56ff239.ngrok.io/connect')){
+      } else if(response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')){
         rtm.sendMessage('Hello! You are already logged in to Google!', message.channel);
         return;
       }
