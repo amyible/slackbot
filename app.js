@@ -322,7 +322,6 @@ app.post('/interact', function(req, res) {
           attendeesFinal.push(item.slice(5, item.length));
         })
 
-//---------------------------------------------try==============================================
         var summary = responseJSON.data.result.parameters.subject;
         console.log('summary', summary)
 
