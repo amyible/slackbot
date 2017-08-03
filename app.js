@@ -339,6 +339,7 @@ app.post('/interact', function(req, res) {
         return Promise.all(freeBusyPromises);
       })
       .then(function(freeBusyResult) {
+        console.log('SYED:', freeBusyResult)
         var attendeesEmail = [];
         var meetingOrganizer;
         users.forEach(function(user) {
