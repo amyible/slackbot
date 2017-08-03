@@ -6,6 +6,7 @@ var apiai = require('apiai');
 var path = require('path');
 var { router, addAllDayEvents, addMeetings, checkFreeBusy } = require('./routes');
 var models = require('./models/models');
+var { findConflict } = require('./merge');
 var User = models.User;
 var Reminder = models.Reminder;
 var Meeting = models.Meeting;
@@ -331,14 +332,21 @@ app.post('/interact', function(req, res) {
         if(users.length === 0) {
           res.send('Unable to find that user. Make sure the user specified linked their Google account.')
         }
+        var promises = [];
         var freeBusyPromises = users.map(function(user) {
-          return checkFreeBusy(startdatetime, enddatetime, user.slack_email, user.google_profile);
+          if (attendeesFinal.includes(user.slack_id)) {
+            promises.push(checkFreeBusy(startdatetime, enddatetime, user.slack_email, user.google_profile));
+          }
         })
 
-        return Promise.all(freeBusyPromises);
+        return Promise.all(promises);
       })
       .then(function(freeBusyResult) {
         console.log('SYED:', freeBusyResult)
+
+        var resultTime = findConflict(startdatetime, enddatetime, freeBusyResult);
+        console.log("result", resultTime);
+
         var attendeesEmail = [];
         var meetingOrganizer;
         users.forEach(function(user) {
