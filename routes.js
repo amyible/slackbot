@@ -179,8 +179,8 @@ function checkFreeBusy(startTime, endTime, email, token){
         } else {
             console.log(key + ' is busy in here...');
             events.forEach(function(time) {
-                console.log(startTime);
-                console.log(endTime);
+                console.log(time.start);
+                console.log(time.end);
             });
         }
       }
