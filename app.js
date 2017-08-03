@@ -76,21 +76,20 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
           });
           result = false;
         }
-      })
-      .then(function(resp) {
-        // console.log('resp', resp);
-        if (result === false && response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')) {
-          var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
-          rtm.sendMessage(finalmessage, message.channel);
-          return;
-        } else if(response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')){
-          rtm.sendMessage('Hello! You are already logged in to Google!', message.channel);
-          return;
-        }
-        if(!response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
-          if(response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
-            web.chat.postMessage(message.channel,
-              "Does this look good?",
+    })
+    .then(function(resp) {
+      if (result === false && response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')) {
+        var finalmessage = "Welcome to Scheduler Bot! Please go to " + process.env.CONNECT_URL + '/connect?auth_id=' + message.user;
+        rtm.sendMessage(finalmessage, message.channel);
+        return;
+      } else if(response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')){
+        rtm.sendMessage('Hello! You are already logged in to Google!', message.channel);
+        return;
+      }
+      if(!response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+        if(response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+          web.chat.postMessage(message.channel,
+             "Does this look good?",
               { "attachments": [
                 {
                   "text": response.data.result.fulfillment.speech,
@@ -339,6 +338,7 @@ app.post('/interact', function(req, res) {
         return Promise.all(freeBusyPromises);
       })
       .then(function(freeBusyResult) {
+        console.log('SYED:', freeBusyResult)
         var attendeesEmail = [];
         var meetingOrganizer;
         users.forEach(function(user) {
