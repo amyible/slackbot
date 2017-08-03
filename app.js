@@ -335,7 +335,7 @@ app.post('/interact', function(req, res) {
         var promises = [];
         var freeBusyPromises = users.map(function(user) {
           if (attendeesFinal.includes(user.slack_id)) {
-            promises.push(checkFreeBusy(startdatetime, enddatetime, user.slack_email, user.google_profile));
+            promises.push(checkFreeBusy('2017-08-04T07:00:00.000Z', '2017-08-04T23:00:00.000Z', user.slack_email, user.google_profile));
           }
         })
 
@@ -346,35 +346,39 @@ app.post('/interact', function(req, res) {
 
         var resultTime = findConflict(startdatetime, enddatetime, freeBusyResult);
         console.log("result", resultTime);
-
-        var attendeesEmail = [];
-        var meetingOrganizer;
-        users.forEach(function(user) {
-          if(user.slack_id === answer.user.id){
-            meetingOrganizer = user;
-          }else{
-            attendeesFinal.forEach(function(id){
-              if(user.slack_id === id){
-                var userObj = {
-                  email: user.slack_email,
+        if (!result) {
+          // add meeting, do normal stuff
+          var attendeesEmail = [];
+          var meetingOrganizer;
+          users.forEach(function(user) {
+            if(user.slack_id === answer.user.id){
+              meetingOrganizer = user;
+            }else{
+              attendeesFinal.forEach(function(id){
+                if(user.slack_id === id){
+                  var userObj = {
+                    email: user.slack_email,
+                  }
+                  attendeesEmail.push(userObj);
                 }
-                attendeesEmail.push(userObj);
-              }
-            });
-          }
-        })
+              });
+            }
+          })
 
-        addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
-        new Meeting({
-          startTime: Date,
-          endTime: Date,
-          invitees: Array,
-          subject: String,
-        }).save(function(error) {if(!error) console.log('successfully saved meeting to database!');})
+          addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
+          new Meeting({
+            startTime: Date,
+            endTime: Date,
+            invitees: Array,
+            subject: String,
+          }).save(function(error) {if(!error) console.log('successfully saved meeting to database!');})
 
-        responseJSON = null;
-        res.send('Taken care of!');
-
+          responseJSON = null;
+          res.send('Taken care of!');
+        }
+        else {
+          // suggest alternate times
+        }
       })
       .catch(function(err){
         console.log(err);

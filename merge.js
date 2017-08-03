@@ -12,8 +12,11 @@ function mergeIntervals(intervals, n)
  
     // sort the intervals in increasing order of start time
     intervals = intervals.sort(function(a, b) {
-        return a.start < b.start;
+        var dateA = new Date(a.start);
+        var dateB = new Date(b.start);
+        return dateA.getTime() < dateB.getTime();
     });
+    console.log("sortedIntervals", intervals);
  
     // push the first interval to stack
     stack.push(intervals[0]);
@@ -42,9 +45,10 @@ function mergeIntervals(intervals, n)
     return stack;
 }
  
-// Driver program
 function findConflict(start, end, busyTimes)
 {   
+    var startTime = start.getTime();
+    var endTime = end.getTime();
     if (busyTimes.length === 1 && busyTimes[0] === null) return false;
     var intervals = busyTimes.reduce((a,b) => {
         if (a === null) a = [];
@@ -57,9 +61,32 @@ function findConflict(start, end, busyTimes)
     var mergedTimes = mergeIntervals(intervals, n);
     console.log("mergedTimes", mergedTimes);
     for (var i = 0; i < mergedTimes.length; i++) {
-        if (end > mergedTimes[i].start || mergedTimes[i].end > start || mergedTimes[i].start === start || mergedTimes[i].end === end) return stack;
+        var startBusy = new Date(mergedTimes[i].start);
+        var endBusy = new Date(mergedTimes[i].end);
+        if (endTime > startBusy || startTime < endBusy || startBusy === startTime || endBusy === endTime) return stack;
     }
     return false;
+}
+
+function suggestTimes(stack) {
+    var suggestions = [];
+    stack.map(item => ({start: new Date(item.start), end: new Date(item.end)}));
+    var latestSoFar = 0;
+    for (var i in stack) {
+        latestSoFar = Math.max(latestSoFar, stack[i].end);
+        if (stack[i+1].start > latestSoFar) suggestions.push({start: latestSoFar, end: stack[i+1].start})
+    }
+    var finals = [];
+    for (var i in suggestions) {
+        var startHour = suggestions[i].start.getHours();
+        var endHour = suggestions[i].end.getHours();
+        var dif = endHour - startHour;
+        for (var j = 0; j < dif; j++) {
+            finals.push({start: suggestions[i].start.setHours(startHour + j), end: suggestions[i].start.setHours(startHour + j + 1)});
+            if (finals.length === 3) break;
+        }
+    }
+    return finals;
 }
 
 module.exports = {
