@@ -4,10 +4,11 @@ var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
 var path = require('path');
-var { router, addAllDayEvents, addMeetings } = require('./routes');
+var { router, addAllDayEvents, addMeetings, checkFreeBusy } = require('./routes');
 var models = require('./models/models');
 var User = models.User;
 var Reminder = models.Reminder;
+var Meeting = models.Meeting;
 
 var app = express();
 
@@ -302,8 +303,8 @@ app.post('/interact', function(req, res) {
         var timeString = splitted[7];
         var startdatetime = new Date(dateString + ' ' + timeString);
         var enddatetime =  new Date(dateString + ' ' + timeString);
-        enddatetime.setTime(enddatetime.getTime() + 3600000 - 25200000);
-        startdatetime.setTime(startdatetime.getTime() - 25200000)
+        enddatetime.setTime(enddatetime.getTime() + 3600000);
+        startdatetime.setTime(startdatetime.getTime())
         console.log('startdatetime: ', startdatetime)
         console.log('enddatetime: ', enddatetime)
 
@@ -321,33 +322,50 @@ app.post('/interact', function(req, res) {
           attendeesFinal.push(item.slice(5, item.length));
         })
 
-//---------------------------------------------try==============================================
         var summary = responseJSON.data.result.parameters.subject;
         console.log('summary', summary)
 
         User.find()
-        //{slack_id: answer.user.id}
         .exec(function(err, users){
             var attendeesEmail = [];
+            var checkConfilctEmail = [];
             var meetingOrganizer;
             users.forEach(function(user) {
                 if(user.slack_id === answer.user.id){
-                    attendeesEmail.push(user.slack_email);
                     meetingOrganizer = user;
                 }else{
-                  attendeesFinal.forEach(function(id) {
-                      if(user.slack_id === id) {
-                          attendeesEmail.push(user.slack_email);
+                  attendeesFinal.forEach(function(id){
+                      if(user.slack_id === id){
+                          var userObj = {
+                            email: user.slack_email,
+                          }
+                          var calendarIdObj = {
+                            id: user.slack_email,
+                          }
+                          attendeesEmail.push(userObj);
+                          checkConfilctEmail.push(calendarIdObj);
                       }
                   });
                 }
             });
-            console.log('attendeesEmail', attendeesEmail);
+
+            var free = checkFreeBusy(startdatetime, enddatetime, checkConfilctEmail, meetingOrganizer.google_profile);
+            console.log('free', free);
             addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
-        })
+            new Meeting({
+              startTime: Date,
+              endTime: Date,
+              invitees: Array,
+              subject: String,
+            }).save(function(error) {if(!error) console.log('successfully saved meeting to database!');})
+          })
       }
+      responseJSON = null;
       res.send('Taken care of!');
-    } else res.send('Aw ok then.');
+    } else {
+      responseJSON = null;
+      res.send('Aw ok then.');
+    }
 	//}
 })
 

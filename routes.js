@@ -71,34 +71,6 @@ router.get('/success', function(req, res) {
   res.send('you are successfully logged in!')
 })
 
-function listEvents(auth) {
-  var calendar = google.calendar('v3');
-  calendar.events.list({
-    auth: auth,
-    calendarId: 'primary',
-    timeMin: (new Date()).toISOString(),
-    maxResults: 10,
-    singleEvents: true,
-    orderBy: 'startTime'
-  }, function(err, response) {
-    if (err) {
-      console.log('The API returned an error: ' + err);
-      return;
-    }
-    var events = response.items;
-    if (events.length == 0) {
-      console.log('No upcoming events found.');
-    } else {
-      console.log('Upcoming 10 events:');
-      for (var i = 0; i < events.length; i++) {
-        var event = events[i];
-        var start = event.start.dateTime || event.start.date;
-        console.log('%s - %s', start, event.summary);
-      }
-    }
-  });
-}
-
 function addAllDayEvents(date, summary, token) {
   if(token.expiry_date < new Date()){
     oauth2Client.setCredentials(token);
@@ -134,8 +106,6 @@ function addAllDayEvents(date, summary, token) {
 function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   startDateTime.toISOString();
   endDateTime.toISOString();
-  // startDateTime = replace(startDateTime, "Z","");
-  // endDateTime = replace(endDateTime, "Z","");
 
   if(token.expiry_date < new Date()){
     oauth2Client.setCredentials(token);
@@ -151,9 +121,11 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
     'summary': summary,
     'start': {
       'dateTime': startDateTime,
+       timezone: 'America/Los_Angeles',
     },
     'end': {
       'dateTime': endDateTime,
+       timezone: 'America/Los_Angeles',
     },
     "attendees": attendees,
   };
@@ -170,9 +142,51 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   });
 }
 
+function checkFreeBusy(startTime, endTime, emails, token){
+  var calendar = google.calendar('v3');
+  if(token.expiry_date < new Date()){
+    oauth2Client.setCredentials(token);
+    oauth2Client.refreshAccessToken(function(err, tokens) {
+        console.log('token refreshed');
+    });
+  }else{
+    oauth2Client.setCredentials(token);
+  }
+
+  var resource = {
+    timeMax: endTime.toISOString(),
+    timeMin: startTime.toISOString(),
+    timeZone: "America/Los_Angeles",
+    items: emails,
+  }
+  calendar.freebusy.query({
+    auth: oauth2Client,
+    headers: { "content-type" : "application/json" },
+    resource: resource,
+  }, function(err, resp){
+      if (err) {
+        console.log('There was an error contacting the Calendar service: ' + err);
+        return;
+      }
+      var free;
+      for(var key in resp.calendars){
+        var events = resp.calendars[key].busy;
+        if (events.length == 0) {
+            console.log('No upcoming events found for ' + key);
+            free = true;
+        } else {
+            console.log(key + ' is busy in here...');
+            free = false;
+        }
+      }
+      return free;
+    });
+}
+
 
 module.exports = {
   router,
   addAllDayEvents,
   addMeetings,
+  checkFreeBusy,
 };
