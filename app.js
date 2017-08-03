@@ -30,6 +30,7 @@ rtm.start();
 var reponseJSON;
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   // console.log('message', message)
+  responseJSON = null;
   var slackUsername = rtm.dataStore.getUserById(message.user);
 
   var dm = rtm.dataStore.getDMByUserId(message.user);
