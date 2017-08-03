@@ -134,8 +134,6 @@ function addAllDayEvents(date, summary, token) {
 function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   startDateTime.toISOString();
   endDateTime.toISOString();
-  // startDateTime = replace(startDateTime, "Z","");
-  // endDateTime = replace(endDateTime, "Z","");
 
   if(token.expiry_date < new Date()){
     oauth2Client.setCredentials(token);
@@ -151,9 +149,11 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
     'summary': summary,
     'start': {
       'dateTime': startDateTime,
+       timezone: 'America/Los_Angeles',
     },
     'end': {
       'dateTime': endDateTime,
+       timezone: 'America/Los_Angeles',
     },
     "attendees": attendees,
   };

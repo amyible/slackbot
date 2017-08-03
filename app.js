@@ -326,26 +326,26 @@ app.post('/interact', function(req, res) {
         console.log('summary', summary)
 
         User.find()
-        //{slack_id: answer.user.id}
         .exec(function(err, users){
             var attendeesEmail = [];
             var meetingOrganizer;
             users.forEach(function(user) {
                 if(user.slack_id === answer.user.id){
-                    attendeesEmail.push(user.slack_email);
                     meetingOrganizer = user;
                 }else{
-                  attendeesFinal.forEach((id) {
+                  attendeesFinal.forEach(function(id){
                       if(user.slack_id === id){
-                          attendeesEmail.push(user.slack_email);
+                          var userObj = {
+                            email: user.slack_email,
+                          }
+                          attendeesEmail.push(userObj);
                       }
                   });
                 }
             });
             console.log('attendeesEmail', attendeesEmail);
             addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
-          }
-        })
+          })
       }
       res.send('Taken care of!');
     } else res.send('Aw ok then.');
