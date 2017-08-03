@@ -328,7 +328,6 @@ app.post('/interact', function(req, res) {
         User.find()
         .exec(function(err, users){
             var attendeesEmail = [];
-            var checkConfilctEmail = [];
             var meetingOrganizer;
             users.forEach(function(user) {
                 if(user.slack_id === answer.user.id){
@@ -339,17 +338,13 @@ app.post('/interact', function(req, res) {
                           var userObj = {
                             email: user.slack_email,
                           }
-                          var calendarIdObj = {
-                            id: user.slack_email,
-                          }
+                          checkFreeBusy(startdatetime, enddatetime, user.slack_email, user.google_profile);
                           attendeesEmail.push(userObj);
-                          checkConfilctEmail.push(calendarIdObj);
                       }
                   });
                 }
             });
 
-            checkFreeBusy(startdatetime, enddatetime, checkConfilctEmail, meetingOrganizer.google_profile);
             addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
             new Meeting({
               startTime: Date,
