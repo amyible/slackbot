@@ -327,8 +327,10 @@ app.post('/interact', function(req, res) {
 
         User.find()
         .exec(function(err, users){
+          if(users.length === 0) {
+            res.send('Unable to find that user. Make sure the user specified linked their Google account.')
+          }
             var attendeesEmail = [];
-            var checkConfilctEmail = [];
             var meetingOrganizer;
             users.forEach(function(user) {
                 if(user.slack_id === answer.user.id){
@@ -339,18 +341,13 @@ app.post('/interact', function(req, res) {
                           var userObj = {
                             email: user.slack_email,
                           }
-                          var calendarIdObj = {
-                            id: user.slack_email,
-                          }
+                          checkFreeBusy(startdatetime, enddatetime, user.slack_email, user.google_profile);
                           attendeesEmail.push(userObj);
-                          checkConfilctEmail.push(calendarIdObj);
                       }
                   });
                 }
             });
 
-            var free = checkFreeBusy(startdatetime, enddatetime, checkConfilctEmail, meetingOrganizer.google_profile);
-            console.log('free', free);
             addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
             new Meeting({
               startTime: Date,

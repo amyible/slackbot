@@ -142,7 +142,7 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   });
 }
 
-function checkFreeBusy(startTime, endTime, emails, token){
+function checkFreeBusy(startTime, endTime, email, token){
   var calendar = google.calendar('v3');
   if(token.expiry_date < new Date()){
     oauth2Client.setCredentials(token);
@@ -152,12 +152,15 @@ function checkFreeBusy(startTime, endTime, emails, token){
   }else{
     oauth2Client.setCredentials(token);
   }
-
   var resource = {
     timeMax: endTime.toISOString(),
     timeMin: startTime.toISOString(),
     timeZone: "America/Los_Angeles",
-    items: emails,
+    items: [
+      {
+        id: email,
+      },
+    ],
   }
   calendar.freebusy.query({
     auth: oauth2Client,
@@ -168,18 +171,14 @@ function checkFreeBusy(startTime, endTime, emails, token){
         console.log('There was an error contacting the Calendar service: ' + err);
         return;
       }
-      var free;
       for(var key in resp.calendars){
         var events = resp.calendars[key].busy;
         if (events.length == 0) {
             console.log('No upcoming events found for ' + key);
-            free = true;
         } else {
             console.log(key + ' is busy in here...');
-            free = false;
         }
       }
-      return free;
     });
 }
 
