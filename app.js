@@ -349,8 +349,7 @@ app.post('/interact', function(req, res) {
                 }
             });
 
-            var free = checkFreeBusy(startdatetime, enddatetime, checkConfilctEmail, meetingOrganizer.google_profile);
-            console.log('free', free);
+            checkFreeBusy(startdatetime, enddatetime, checkConfilctEmail, meetingOrganizer.google_profile);
             addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
             new Meeting({
               startTime: Date,

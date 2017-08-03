@@ -168,18 +168,14 @@ function checkFreeBusy(startTime, endTime, emails, token){
         console.log('There was an error contacting the Calendar service: ' + err);
         return;
       }
-      var free;
       for(var key in resp.calendars){
         var events = resp.calendars[key].busy;
         if (events.length == 0) {
             console.log('No upcoming events found for ' + key);
-            free = true;
         } else {
             console.log(key + ' is busy in here...');
-            free = false;
         }
       }
-      return free;
     });
 }
 
