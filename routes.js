@@ -159,8 +159,8 @@ function checkFreeBusy(startTime, endTime, email, token){
       oauth2Client.setCredentials(token);
     }
     var resource = {
-      timeMax: endTime,//.toISOString(),
-      timeMin: startTime,//.toISOString(),
+      timeMax: endTime.toISOString(),
+      timeMin: startTime.toISOString(),
       timeZone: "America/Los_Angeles",
       items: [
         {

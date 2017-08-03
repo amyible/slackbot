@@ -1,10 +1,7 @@
 
-isConflict(start Date, end Date, [])
-
-
 // The main function that takes a set of intervals, merges
 // overlapping intervals and prints the result
-function mergeIntervals(intervals[], n)
+function mergeIntervals(intervals, n)
 {
     // Test if the given set has at least one interval
     if (n <= 0)
@@ -22,7 +19,7 @@ function mergeIntervals(intervals[], n)
     stack.push(intervals[0]);
  
     // Start from the next interval and merge if necessary
-    for (int i = 1 ; i < n; i++)
+    for (var i = 1 ; i < n; i++)
     {
         // get interval from stack top
         var top = stack[stack.length - 1];
@@ -47,12 +44,24 @@ function mergeIntervals(intervals[], n)
  
 // Driver program
 function findConflict(start, end, busyTimes)
-{
-    var intervals = busyTimes.reduce((a,b) => (a.concat(b)));
+{   
+    if (busyTimes.length === 1 && busyTimes[0] === null) return false;
+    var intervals = busyTimes.reduce((a,b) => {
+        if (a === null) a = [];
+        if (b === null) b = [];
+        return a.concat(b);
+    });
+    if (busyTimes.length === 1) intervals = busyTimes[0];
+    console.log("intervals", intervals)
     var n = intervals.length;
     var mergedTimes = mergeIntervals(intervals, n);
+    console.log("mergedTimes", mergedTimes);
     for (var i = 0; i < mergedTimes.length; i++) {
-        if (end > mergedTimes[i].start || mergedTimes[i].end > start) return stack;
+        if (end > mergedTimes[i].start || mergedTimes[i].end > start || mergedTimes[i].start === start || mergedTimes[i].end === end) return stack;
     }
     return false;
+}
+
+module.exports = {
+    findConflict
 }
