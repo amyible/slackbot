@@ -142,7 +142,9 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   });
 }
 
-function checkFreeBusy(startTime, endTime, email, token){
+function checkFreeBusy(startTime, day, email, token){
+  var start = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDay());
+  var end = new Date(startTime.getFullYear(), startTime.getMonth(), (startTime.getDay() + day));
   return new Promise(function(resolve, reject) {
     var calendar = google.calendar('v3');
     if(token.expiry_date < new Date()){
@@ -158,8 +160,8 @@ function checkFreeBusy(startTime, endTime, email, token){
       oauth2Client.setCredentials(token);
     }
     var resource = {
-      timeMax: endTime, //.toISOString(),
-      timeMin: startTime, //.toISOString(),
+      timeMax: end.toISOString(),
+      timeMin: start.toISOString(),
       timeZone: "America/Los_Angeles",
       items: [
         {
