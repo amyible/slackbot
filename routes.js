@@ -143,7 +143,10 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
 }
 
 function checkFreeBusy(startTime, endTime, email, token){
-  startTime.getTime() + 3600000
+  var timeString = startTime.getFullYear() + '-' + startTime.getMonth() + '-' + startTime.getDay();
+  var start = new Date(timeString);
+  var end = new Date(timeString);
+  end.setTime(end.getTime() + 86400000);
   return new Promise(function(resolve, reject) {
     var calendar = google.calendar('v3');
     if(token.expiry_date < new Date()){
@@ -159,8 +162,8 @@ function checkFreeBusy(startTime, endTime, email, token){
       oauth2Client.setCredentials(token);
     }
     var resource = {
-      timeMax: endTime.toISOString(),
-      timeMin: startTime.toISOString(),
+      timeMax: end.toISOString(),
+      timeMin: start.toISOString(),
       timeZone: "America/Los_Angeles",
       items: [
         {
