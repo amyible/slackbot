@@ -182,16 +182,10 @@ function checkFreeBusy(startTime, endTime, email, token){
           var events = resp.calendars[key].busy;
           if (events.length == 0) {
               console.log('No upcoming events found for ' + key);
-              resolve({
-                isFree: true,
-                events: null,
-              });
+              resolve(null);
           } else {
               console.log(key + ' is busy in here...');
-              resolve({
-                isFree: false,
-                events: events,
-              });
+              resolve(events);
           }
         }
       });
