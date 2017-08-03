@@ -44,20 +44,20 @@ function mergeIntervals(intervals, n)
  
 // Driver program
 function findConflict(start, end, busyTimes)
-{
+{   
+    if (busyTimes.length === 1 && busyTimes[0] === null) return false;
     var intervals = busyTimes.reduce((a,b) => {
         if (a === null) a = [];
         if (b === null) b = [];
         return a.concat(b);
     });
-    if (busyTimes.length === 0) return false;
-    if (busyTimes.length === 1) intervals = busyTimes;
+    if (busyTimes.length === 1) intervals = busyTimes[0];
     console.log("intervals", intervals)
     var n = intervals.length;
     var mergedTimes = mergeIntervals(intervals, n);
     console.log("mergedTimes", mergedTimes);
     for (var i = 0; i < mergedTimes.length; i++) {
-        if (end > mergedTimes[i].start || mergedTimes[i].end > start) return stack;
+        if (end > mergedTimes[i].start || mergedTimes[i].end > start || mergedTimes[i].start === start || mergedTimes[i].end === end) return stack;
     }
     return false;
 }
