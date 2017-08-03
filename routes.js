@@ -143,48 +143,59 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
 }
 
 function checkFreeBusy(startTime, endTime, email, token){
-  var calendar = google.calendar('v3');
-  if(token.expiry_date < new Date()){
-    oauth2Client.setCredentials(token);
-    oauth2Client.refreshAccessToken(function(err, tokens) {
-        console.log('token refreshed');
-    });
-  }else{
-    oauth2Client.setCredentials(token);
-  }
-  var resource = {
-    timeMax: endTime,//.toISOString(),
-    timeMin: startTime,//.toISOString(),
-    timeZone: "America/Los_Angeles",
-    items: [
-      {
-        id: email,
-      },
-    ],
-  }
-  calendar.freebusy.query({
-    auth: oauth2Client,
-    headers: { "content-type" : "application/json" },
-    resource: resource,
-  }, function(err, resp){
-      if (err) {
-        console.log('There was an error contacting the Calendar service: ' + err);
-        return;
-      }
-      for(var key in resp.calendars){
-        console.log(resp.calendars[key].busy);
-        var events = resp.calendars[key].busy;
-        if (events.length == 0) {
-            console.log('No upcoming events found for ' + key);
-        } else {
-            console.log(key + ' is busy in here...');
-            events.forEach(function(time) {
-                console.log(time.start);
-                console.log(time.end);
-            });
+  return new Promise(function(resolve, reject) {
+    var calendar = google.calendar('v3');
+    if(token.expiry_date < new Date()){
+      oauth2Client.setCredentials(token);
+      oauth2Client.refreshAccessToken(function(err, tokens) {
+        if (err) {
+          reject(err);
+          return;
         }
-      }
-    });
+          console.log('token refreshed');
+      });
+    }else{
+      oauth2Client.setCredentials(token);
+    }
+    var resource = {
+      timeMax: endTime,//.toISOString(),
+      timeMin: startTime,//.toISOString(),
+      timeZone: "America/Los_Angeles",
+      items: [
+        {
+          id: email,
+        },
+      ],
+    }
+    calendar.freebusy.query({
+      auth: oauth2Client,
+      headers: { "content-type" : "application/json" },
+      resource: resource,
+    }, function(err, resp){
+        if (err) {
+          console.log('There was an error contacting the Calendar service: ' + err);
+          reject(err);
+          return;
+        }
+        for(var key in resp.calendars){
+          console.log(resp.calendars[key].busy);
+          var events = resp.calendars[key].busy;
+          if (events.length == 0) {
+              console.log('No upcoming events found for ' + key);
+              resolve({
+                isFree: true,
+                events: null,
+              });
+          } else {
+              console.log(key + ' is busy in here...');
+              resolve({
+                isFree: false,
+                events: events,
+              });
+          }
+        }
+      });
+  });
 }
 
 
