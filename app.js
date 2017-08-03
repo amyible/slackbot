@@ -335,8 +335,8 @@ app.post('/interact', function(req, res) {
                     attendeesEmail.push(user.slack_email);
                     meetingOrganizer = user;
                 }else{
-                  attendeesFinal.forEach((id) {
-                      if(user.slack_id === id){
+                  attendeesFinal.forEach(function(id) {
+                      if(user.slack_id === id) {
                           attendeesEmail.push(user.slack_email);
                       }
                   });
@@ -344,7 +344,6 @@ app.post('/interact', function(req, res) {
             });
             console.log('attendeesEmail', attendeesEmail);
             addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
-          }
         })
       }
       res.send('Taken care of!');
