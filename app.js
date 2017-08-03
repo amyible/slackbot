@@ -30,7 +30,6 @@ rtm.start();
 var reponseJSON;
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   // console.log('message', message)
-  responseJSON = null;
   var slackUsername = rtm.dataStore.getUserById(message.user);
 
   var dm = rtm.dataStore.getDMByUserId(message.user);
@@ -303,8 +302,8 @@ app.post('/interact', function(req, res) {
         var timeString = splitted[7];
         var startdatetime = new Date(dateString + ' ' + timeString);
         var enddatetime =  new Date(dateString + ' ' + timeString);
-        enddatetime.setTime(enddatetime.getTime() + 3600000 - 25200000);
-        startdatetime.setTime(startdatetime.getTime() - 25200000)
+        enddatetime.setTime(enddatetime.getTime() + 3600000);
+        startdatetime.setTime(startdatetime.getTime())
         console.log('startdatetime: ', startdatetime)
         console.log('enddatetime: ', enddatetime)
 
@@ -348,8 +347,12 @@ app.post('/interact', function(req, res) {
             addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
           })
       }
+      responseJSON = null;
       res.send('Taken care of!');
-    } else res.send('Aw ok then.');
+    } else {
+      responseJSON = null;
+      res.send('Aw ok then.');
+    }
 	//}
 })
 
