@@ -143,6 +143,7 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
 }
 
 function checkFreeBusy(startTime, endTime, email, token){
+  startTime.getTime() + 3600000
   return new Promise(function(resolve, reject) {
     var calendar = google.calendar('v3');
     if(token.expiry_date < new Date()){
