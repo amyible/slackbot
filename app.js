@@ -4,10 +4,11 @@ var request = require('request');
 var axios = require('axios');
 var apiai = require('apiai');
 var path = require('path');
-var { router, addAllDayEvents, addMeetings } = require('./routes');
+var { router, addAllDayEvents, addMeetings, checkFreeBusy } = require('./routes');
 var models = require('./models/models');
 var User = models.User;
 var Reminder = models.Reminder;
+var Meeting = models.Meeting;
 
 var app = express();
 
@@ -327,6 +328,7 @@ app.post('/interact', function(req, res) {
         User.find()
         .exec(function(err, users){
             var attendeesEmail = [];
+            var checkConfilctEmail = [];
             var meetingOrganizer;
             users.forEach(function(user) {
                 if(user.slack_id === answer.user.id){
@@ -337,13 +339,25 @@ app.post('/interact', function(req, res) {
                           var userObj = {
                             email: user.slack_email,
                           }
+                          var calendarIdObj = {
+                            id: user.slack_email,
+                          }
                           attendeesEmail.push(userObj);
+                          checkConfilctEmail.push(calendarIdObj);
                       }
                   });
                 }
             });
-            console.log('attendeesEmail', attendeesEmail);
+
+            var free = checkFreeBusy(startdatetime, enddatetime, meetingOrganizer.google_profile);
+            console.log('free', free);
             addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
+            new Meeting({
+              startTime: Date,
+              endTime: Date,
+              invitees: Array,
+              subject: String,
+            }).save(function(error) {if(!error) console.log('successfully saved meeting to database!');})
           })
       }
       responseJSON = null;
