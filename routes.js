@@ -142,7 +142,7 @@ function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   });
 }
 
-function checkFreeBusy(startTime, endTime, token){
+function checkFreeBusy(startTime, endTime, emails, token){
   var calendar = google.calendar('v3');
   if(token.expiry_date < new Date()){
     oauth2Client.setCredentials(token);
@@ -157,14 +157,7 @@ function checkFreeBusy(startTime, endTime, token){
     timeMax: endTime.toISOString(),
     timeMin: startTime.toISOString(),
     timeZone: "America/Los_Angeles",
-    items: [
-      {
-        id: "zijunzhao1998@gmail.com"
-      },
-      {
-        id: "amyible@gmail.com"
-      }
-    ],
+    items: emails,
   }
   calendar.freebusy.query({
     auth: oauth2Client,
