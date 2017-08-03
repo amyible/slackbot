@@ -327,6 +327,9 @@ app.post('/interact', function(req, res) {
 
         User.find()
         .exec(function(err, users){
+          if(users.length === 0) {
+            res.send('Unable to find that user. Make sure the user specified linked their Google account.')
+          }
             var attendeesEmail = [];
             var checkConfilctEmail = [];
             var meetingOrganizer;
