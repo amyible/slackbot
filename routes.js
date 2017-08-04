@@ -177,7 +177,9 @@ function checkFreeBusy(startTime, email, token){
               resolve(null);
           } else {
             events.forEach(function(busyTime){
-              var busy = new Date(busyTime.start.getTime() - 25200000);
+              var busy = new Date(busyTime.start);
+              busy.setTime(busy.getTime() - 25200000);
+              console.log('busy', busy);
               if(busy === start){
                   free = false;
               }
