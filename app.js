@@ -20,7 +20,7 @@ var IncomingWebhook = require('@slack/client').IncomingWebhook;
 
 var token = process.env.SLACK_API_TOKEN || '';
 var url = process.env.SLACK_WEBHOOK_URL || '';
-var apitoken = process.env.API_ACC  ESS_TOKEN;
+var apitoken = process.env.API_ACCESS_TOKEN;
 
 var application = apiai("0363b04fac5d44899aa10b88294aa6cc");
 
