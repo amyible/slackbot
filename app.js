@@ -336,7 +336,7 @@ app.post('/interact', function(req, res) {
         var promises = [];
         var freeBusyPromises = users.map(function(user) {
           if (attendeesFinal.includes(user.slack_id)) {
-            promises.push(checkFreeBusy(startdatetime, 7, user.slack_email, user.google_profile));
+            promises.push(checkFreeBusy(startdatetime, user.slack_email, user.google_profile));
           }
         })
 
