@@ -176,8 +176,19 @@ function checkFreeBusy(startTime, email, token){
               console.log('No upcoming events found for ' + key);
               resolve(null);
           } else {
+            events.forEach(function(busyTime){
+              var busy = new Date(busyTime.start.getTime() - 25200000);
+              if(busy === start){
+                  free = false;
+              }
+            })
+            if(free === false){
+              console.log(resp.calendars[key].busy);
               console.log(key + ' is busy in here...');
               resolve(events);
+          } else {
+            console.log('No upcoming events for ' + key);
+            resolve(null);
           }
         }
       });
