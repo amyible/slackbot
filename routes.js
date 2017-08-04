@@ -169,6 +169,7 @@ function checkFreeBusy(startTime, email, token){
           reject(err);
           return;
         }
+        var free = true;
         for(var key in resp.calendars){
           console.log(resp.calendars[key].busy);
           var events = resp.calendars[key].busy;
