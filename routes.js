@@ -74,9 +74,11 @@ function addAllDayEvents(date, summary, token) {
     'summary': summary,
     'start': {
       'date': date,
+       timezone: 'America/Los_Angeles',
     },
     'end': {
       'date': date,
+       timezone: 'America/Los_Angeles',
     },
   };
   calendar.events.insert({
