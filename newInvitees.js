@@ -7,7 +7,6 @@ var User = models.User;
 
 function AllHasAccess(invitees) {
   // invitees should be an array!
-  return new Promise(function(resolve, reject) {
       User.find()
       .then(function(AllUsers){
         var nonUsers = [];
@@ -18,16 +17,17 @@ function AllHasAccess(invitees) {
             }
           })
         })
-
-        if(nonUsers.length === 0) {
-          // true means everyone has access.
-          resolve(null);
-        } else {
-          // false means someone didn't do Oauth access.
-          resolve(nonUsers);
-        }
+        return new Promise(function(resolve, reject) {
+            if(nonUsers.length === 0) {
+              // true means everyone has access.
+              resolve(null);
+            } else {
+              // false means someone didn't do Oauth access.
+              resolve(nonUsers);
+            }
       })
-  })
+    })
+
 }
 
 function meetingabove4(timeStart) {
