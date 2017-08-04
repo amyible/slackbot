@@ -6,10 +6,10 @@ function mergeIntervals(intervals, n)
     // Test if the given set has at least one interval
     if (n <= 0)
         return;
- 
+
     // Create an empty stack of intervals
     stack = [];
- 
+
     // sort the intervals in increasing order of start time
     // intervals = intervals.sort(function(a, b) {
     //     var dateA = new Date(a.start);
@@ -17,22 +17,22 @@ function mergeIntervals(intervals, n)
     //     return dateA.getTime() > dateB.getTime();
     // });
     // console.log("sortedIntervals", intervals);
- 
+
     // push the first interval to stack
     stack.push(intervals[0]);
- 
+
     // Start from the next interval and merge if necessary
     for (var i = 1 ; i < n; i++)
     {
         // get interval from stack top
         var top = stack[stack.length - 1];
- 
+
         // if current interval is not overlapping with stack top,
         // push it to the stack
         if (top.end < intervals[i].start) {
             stack.push(intervals[i]);
         }
- 
+
         // Otherwise update the ending time of top if ending of current
         // interval is more
         else if (top.end < intervals[i].end && top.end.getDay() === intervals[i].end.getDay())
@@ -42,10 +42,10 @@ function mergeIntervals(intervals, n)
             stack.push(top);
         }
     }
- 
+
     return stack;
 }
- 
+
 function findConflict(start, end, busyTimes)
 {   
     var startTime = start.toTimeString();

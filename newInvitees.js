@@ -10,7 +10,7 @@ function AllHasAccess(invitees) {
   User.find()
   .then(function(AllUsers){
     var allSlackIds = AllUsers.reduce(function(a) {
-      return a.slack_id;
+      return a.slack_email;
     })
     console.log(allSlackIds);
     var nonUsers = [];
@@ -19,6 +19,11 @@ function AllHasAccess(invitees) {
         nonUsers.push(user);
       }
     })
+    AllUsers.forEach(function(user) {
+      if(!('google_profile' in user)){
+        nonUsers.push(user);
+      }
+    });
     if(nonUsers.length === 0) {
       // true means everyone has access.
       return true;
