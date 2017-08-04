@@ -14,16 +14,15 @@ function AllHasAccess(invitees) {
     })
     console.log(allSlackIds);
     var nonUsers = [];
-    invitees.forEach(function(user) {
+    AllUsers.forEach(function(user) {
       if(allSlackIds.indexOf(user.slack_id) === -1) {
         nonUsers.push(user);
       }
-    })
-    AllUsers.forEach(function(user) {
       if(!('google_profile' in user)){
         nonUsers.push(user.slack_id);
       }
-    });
+    })
+
     if(nonUsers.length === 0) {
       // true means everyone has access.
       return true;
