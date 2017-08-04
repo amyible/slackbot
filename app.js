@@ -300,6 +300,7 @@ app.post('/interact', function(req, res) {
         console.log('SYED:', freeBusyResult)
 
         var resultTime = findConflict(startdatetime, enddatetime, freeBusyResult);
+        console.log("here result", resultTime)
         if (!resultTime) {
           // add meeting, do normal stuff
           var attendeesEmail = [];
