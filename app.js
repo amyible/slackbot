@@ -6,7 +6,7 @@ var apiai = require('apiai');
 var path = require('path');
 var { router, addAllDayEvents, addMeetings, checkFreeBusy } = require('./routes');
 var models = require('./models/models');
-var { findConflict, suggestTimes } = require('./merge');
+var { findConflict } = require('./merge');
 var User = models.User;
 var Reminder = models.Reminder;
 var Meeting = models.Meeting;
@@ -225,7 +225,7 @@ app.post('/interact', function(req, res) {
   //if (req.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
   //else {
   var answer = JSON.parse(req.body.payload);
-  console.log('answer', answer);
+  console.log('answer', answer.actions);
   if (answer.actions[0].value === 'yes') {
     if(answer.actions[0].name === 'confirm task') {
       var splitted = answer.original_message.attachments[0].text.split(' ');
@@ -300,6 +300,7 @@ app.post('/interact', function(req, res) {
         console.log('SYED:', freeBusyResult)
 
         var resultTime = findConflict(startdatetime, enddatetime, freeBusyResult);
+        console.log("result", resultTime);
         if (!resultTime) {
           // add meeting, do normal stuff
           var attendeesEmail = [];
@@ -334,20 +335,13 @@ app.post('/interact', function(req, res) {
           }
           else {
             // suggest alternate times
-            res.send('There is conflict! Please select an available time below.');
-            var options = suggestTimes(resultTime)
-            console.log("options", options)
-            options = options.map(item => {
-              var newStart = new Date(item.start).toLocaleString();
-              var newEnd = new Date(item.end).toLocaleTimeString();
-              return {text: newStart + ' - ' + newEnd, value: item.start}
-            });
+            res.send('There is conflict! Please select an available time below.')
             web.chat.postMessage(channel,
               "These times are available for all your invitees",
               { "attachments": [
                 {
                   "text": "Choose a date and time",
-                  "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
+                  "fallback": "If you could read this message, you'd be choosing a time for your team right now",
                   "color": "#3AA3E3",
                   "attachment_type": "default",
                   "callback_id": "time_selection",
@@ -356,24 +350,24 @@ app.post('/interact', function(req, res) {
                       "name": "times_list",
                       "text": "Pick a time...",
                       "type": "select",
-                       "options": options //[
-                      //   {
-                      //     "text": "Hearts",
-                      //     "value": "hearts"
-                      //   },
-                      //   {
-                      //     "text": "Bridge",
-                      //     "value": "bridge"
-                      //   },
-                      //   {
-                      //     "text": "Checkers",
-                      //     "value": "checkers"
-                      //   },
-                      //   {
-                      //     "text": "Global Thermonuclear War",
-                      //     "value": "war"
-                      //   }
-                      // ]
+                      "options": [
+                        {
+                          "text": "Hearts",
+                          "value": "hearts"
+                        },
+                        {
+                          "text": "Bridge",
+                          "value": "bridge"
+                        },
+                        {
+                          "text": "Checkers",
+                          "value": "checkers"
+                        },
+                        {
+                          "text": "Global Thermonuclear War",
+                          "value": "war"
+                        }
+                      ]
                     }
                   ]
                 }
