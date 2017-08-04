@@ -367,10 +367,10 @@ app.post('/interact', function(req, res) {
 
           addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
           new Meeting({
-            startTime: Date,
-            endTime: Date,
-            invitees: Array,
-            subject: String,
+            startTime: startdatetime,
+            endTime: enddatetime,
+            invitees: attendeesEmail,
+            subject: summary,
           }).save(function(error) {if(!error) console.log('successfully saved meeting to database!');})
 
           responseJSON = null;
