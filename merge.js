@@ -60,12 +60,13 @@ function findConflict(start, end, busyTimes)
     var n = intervals.length;
     var mergedTimes = mergeIntervals(intervals, n);
     console.log("mergedTimes", mergedTimes);
-    for (var i = 0; i < mergedTimes.length; i++) {
-        var startBusy = new Date(mergedTimes[i].start).toTimeString();
-        var endBusy = new Date(mergedTimes[i].end).toTimeString();
-        if (endTime > startBusy && startTime < endBusy && new Date(mergedTimes[i].start).getDate() === start.getDate()) {
-            console.log(startBusy, endBusy, startTime, endTime);
-            return stack;
+    for (var i = 0; i < mergedTimes.length - 1; i++) {
+        if (new Date(mergedTimes[i].start).getDate() === start.getDate()) {
+            var startBusy = new Date(mergedTimes[i].start).toTimeString();
+            var endBusy = new Date(mergedTimes[i].end).toTimeString();
+            if ((endTime >= startBusy && endTime <= endBusy) || (startTime <= endBusy && startTime >= startBusy)) {
+                return stack;
+            }
         }
     }
     return false;

@@ -176,12 +176,12 @@ function checkFreeBusy(startTime, email, token){
               console.log('No upcoming events found for ' + key);
               resolve(null);
           } else {
-            events.forEach(function(busyTime){
-              var busy = new Date(busyTime.start);
-              if(busy === newTime){
-                  free = false;
-              }
-            })
+            // events.forEach(function(busyTime){
+            //   var busy = new Date(busyTime.start);
+            //   if(busy === newTime){
+            //       free = false;
+            //   }
+            // })
             if(free === false){
               console.log(resp.calendars[key].busy);
               console.log(key + ' is busy in here...');
