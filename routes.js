@@ -169,6 +169,7 @@ function checkFreeBusy(startTime, email, token){
           reject(err);
           return;
         }
+        var free = true;
         for(var key in resp.calendars){
           console.log(resp.calendars[key].busy);
           var events = resp.calendars[key].busy;
@@ -177,10 +178,13 @@ function checkFreeBusy(startTime, email, token){
               resolve(null);
           } else {
             events.forEach(function(busyTime){
-              var busy = new Date(busyTime.start);
-              busy.setTime(busy.getTime() - 25200000);
-              console.log('busy', busy);
-              if(busy.toTimeString() === start.toTimeString()){
+              var busyStart = new Date(busyTime.start);
+              busyStart.setTime(busyStart.getTime() - 25200000);
+              var busyEnd = new Date(busyTime.end);
+              busyEnd.setTime(busyEnd.getTime() - 25200000);
+              var timeInterval = busyEnd.getTime() - busyStart.getTime();
+              var checkIfIn = busyEnd.getTime() - start.getTime();
+              if(timeInterval >= checkIfIn && checkIfIn !== 0){
                   free = false;
               }
             })
@@ -188,10 +192,10 @@ function checkFreeBusy(startTime, email, token){
               console.log(resp.calendars[key].busy);
               console.log(key + ' is busy in here...');
               resolve(events);
-          } else {
-            console.log('No upcoming events for ' + key);
-            resolve(null);
-          }
+            } else {
+              console.log('No upcoming events for ' + key);
+              resolve(null);
+            }
         }
       });
   });
