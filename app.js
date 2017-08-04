@@ -74,7 +74,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
             slack_id: message.user,
             slack_name: slackUsername.name,
             slack_email: slackUsername.profile.email,
-            slack_dmid: //here
+            // slack_dmid: //here
           }).save(function(err, user){
             console.log("save success");
           });
