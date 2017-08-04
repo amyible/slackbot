@@ -9,17 +9,10 @@ function AllHasAccess(invitees) {
   // invitees should be an array!
   User.find()
   .then(function(AllUsers){
-    var allSlackIds = AllUsers.reduce(function(a) {
-      return a.slack_email;
-    })
-    console.log(allSlackIds);
     var nonUsers = [];
     AllUsers.forEach(function(user) {
-      if(allSlackIds.indexOf(user.slack_id) === -1) {
-        nonUsers.push(user.slack_dmid);
-      }
       if(!('google_profile' in user)){
-        nonUsers.push(user.slack_dmid);
+        nonUsers.push(user);
       }
     })
 
