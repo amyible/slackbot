@@ -48,8 +48,8 @@ function mergeIntervals(intervals, n)
  
 function findConflict(start, end, busyTimes)
 {   
-    var startTime = start.getTime();
-    var endTime = end.getTime();
+    var startTime = start.toTimeString();
+    var endTime = end.toTimeString();
     if (busyTimes.length === 1 && busyTimes[0] === null) return false;
     var intervals = busyTimes.reduce((a,b) => {
         if (a === null) a = [];
@@ -61,9 +61,12 @@ function findConflict(start, end, busyTimes)
     var mergedTimes = mergeIntervals(intervals, n);
     console.log("mergedTimes", mergedTimes);
     for (var i = 0; i < mergedTimes.length; i++) {
-        var startBusy = new Date(mergedTimes[i].start);
-        var endBusy = new Date(mergedTimes[i].end);
-        if (endTime > startBusy || startTime < endBusy || startBusy === startTime || endBusy === endTime) return stack;
+        var startBusy = new Date(mergedTimes[i].start).toTimeString();
+        var endBusy = new Date(mergedTimes[i].end).toTimeString();
+        if (endTime > startBusy && startTime < endBusy && new Date(mergedTimes[i].start).getDate() === start.getDate()) {
+            console.log(startBusy, endBusy, startTime, endTime);
+            return stack;
+        }
     }
     return false;
 }
@@ -95,6 +98,7 @@ function suggestTimes(stack) {
         finals = finals.concat(days);
         days = [];
         current = suggestions[i].start.getDate();
+        i--;
     }
     if (finals.length > 10) return finals.slice(0, 10);
     return finals;
