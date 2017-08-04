@@ -7,6 +7,7 @@ var path = require('path');
 var { router, addAllDayEvents, addMeetings, checkFreeBusy } = require('./routes');
 var models = require('./models/models');
 var { findConflict, suggestTimes } = require('./merge');
+var { AllHasAccess } = require('./newInvitees');
 var User = models.User;
 var Reminder = models.Reminder;
 var Meeting = models.Meeting;
@@ -385,6 +386,10 @@ app.post('/interact', function(req, res) {
           }
           attendeesFinal.push(item.slice(5, item.length));
         })
+        AllHasAccess(attendeesFinal).then(function(results){
+          console.log('result from promise', results);
+        })
+        //promise ------------------------------------------------------------------------------------------------------
 
         var summary = responseJSON.data.result.parameters.subject;
         console.log('summary', summary)

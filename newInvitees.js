@@ -7,23 +7,27 @@ var User = models.User;
 
 function AllHasAccess(invitees) {
   // invitees should be an array!
-  User.find()
-  .then(function(AllUsers){
-    var nonUsers = [];
-    AllUsers.forEach(function(user) {
-      if(!('google_profile' in user)){
-        nonUsers.push(user);
-      }
-    })
+  return new Promise(function(resolve, reject) {
+      User.find()
+      .then(function(AllUsers){
+        var nonUsers = [];
+        AllUsers.forEach(function(user) {
+          if(invitees.includes(user.slack_id)){
+            if(!('google_profile' in user)){
+              nonUsers.push(user);
+            }
+          }
+        })
 
-    if(nonUsers.length === 0) {
-      // true means everyone has access.
-      return true;
-    } else {
-      // false means someone didn't do Oauth access.
-      return false;
-    }
-  })
+        if(nonUsers.length === 0) {
+          // true means everyone has access.
+          resolve(nonUsers);
+        } else {
+          // false means someone didn't do Oauth access.
+          resolve(null);
+        }
+      })
+  }
 }
 
 function meetingabove4(timeStart) {
