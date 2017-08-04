@@ -336,6 +336,47 @@ app.post('/interact', function(req, res) {
           else {
             // suggest alternate times
             res.send('There is conflict! Please select an available time below.')
+            web.chat.postMessage(channel,
+              "These times are available for all your invitees",
+              { "attachments": [
+                {
+                  "text": "Choose a date and time",
+                  "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
+                  "color": "#3AA3E3",
+                  "attachment_type": "default",
+                  "callback_id": "time_selection",
+                  "actions": [
+                    {
+                      "name": "times_list",
+                      "text": "Pick a time...",
+                      "type": "select",
+                      "options": [
+                        {
+                          "text": "Hearts",
+                          "value": "hearts"
+                        },
+                        {
+                          "text": "Bridge",
+                          "value": "bridge"
+                        },
+                        {
+                          "text": "Checkers",
+                          "value": "checkers"
+                        },
+                        {
+                          "text": "Global Thermonuclear War",
+                          "value": "war"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, function(err, res){
+              if (err) console.log('Error:', err);
+              else console.log('Response', res);
+            }
+          );
         }
       })
       .catch(function(err){
