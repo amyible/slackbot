@@ -86,7 +86,7 @@ function suggestTimes(stack) {
     var finals = [];
     var current = suggestions[0].start.getDate();
     for (var i = 0; i < suggestions.length; i++) {
-        while (suggestions[i].start.getDate() === current) {
+        while (i < suggestions.length && suggestions[i].start.getDate() === current) {
             var startTime = suggestions[i].start.getTime();
             var endTime = suggestions[i].end.getTime();
             var dif = endTime/(1000 * 60 * 60) - startTime/(1000 * 60 * 60);
@@ -98,7 +98,7 @@ function suggestTimes(stack) {
         }
         finals = finals.concat(days);
         days = [];
-        current = suggestions[i].start.getDate();
+        if (i < suggestions.length) current = suggestions[i].start.getDate();
         i--;
     }
     if (finals.length > 10) return finals.slice(0, 10);
