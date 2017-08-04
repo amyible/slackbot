@@ -76,6 +76,7 @@ function suggestTimes(stack) {
         latestSoFar = new Date(Math.max(latestSoFar.getTime(), stack[i].end.getTime()));
         if (stack[i+1].start > latestSoFar) suggestions.push({start: latestSoFar, end: stack[i+1].start})
     }
+    stack.unshift({start: new Date(), end: stack[0].start});
     console.log("suggestions", suggestions)
     var days = [];
     var finals = [];
