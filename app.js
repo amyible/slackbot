@@ -290,6 +290,7 @@ app.post('/interact', function(req, res) {
             subject: subject,
             user: user[0],
           }).save(function(err){ if(!err) console.log('successfully saved an all day event!') })
+          res.send('Taken care of!')
         }else{
           console.log('cannot find user');
         }
