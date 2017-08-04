@@ -16,10 +16,10 @@ function AllHasAccess(invitees) {
     var nonUsers = [];
     AllUsers.forEach(function(user) {
       if(allSlackIds.indexOf(user.slack_id) === -1) {
-        nonUsers.push(user);
+        nonUsers.push(user.slack_dmid);
       }
       if(!('google_profile' in user)){
-        nonUsers.push(user.slack_id);
+        nonUsers.push(user.slack_dmid);
       }
     })
 
