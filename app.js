@@ -347,7 +347,7 @@ app.post('/interact', function(req, res) {
 
         var resultTime = findConflict(startdatetime, enddatetime, freeBusyResult);
         console.log("result", resultTime);
-        if (!result) {
+        if (!resultTime) {
           // add meeting, do normal stuff
           var attendeesEmail = [];
           var meetingOrganizer;

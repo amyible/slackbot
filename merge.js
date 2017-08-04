@@ -34,7 +34,7 @@ function mergeIntervals(intervals, n)
  
         // Otherwise update the ending time of top if ending of current
         // interval is more
-        else if (top.end < intervals[i].end)
+        else if (top.end < intervals[i].end && top.end.getDay() === intervals[i].end.getDay())
         {
             top.end = intervals[i].end;
             stack.pop();
