@@ -6,7 +6,7 @@ var apiai = require('apiai');
 var path = require('path');
 var { router, addAllDayEvents, addMeetings, checkFreeBusy } = require('./routes');
 var models = require('./models/models');
-var { findConflict } = require('./merge');
+var { findConflict, suggestTimes } = require('./merge');
 var User = models.User;
 var Reminder = models.Reminder;
 var Meeting = models.Meeting;
@@ -300,7 +300,6 @@ app.post('/interact', function(req, res) {
         console.log('SYED:', freeBusyResult)
 
         var resultTime = findConflict(startdatetime, enddatetime, freeBusyResult);
-        console.log("result", resultTime);
         if (!resultTime) {
           // add meeting, do normal stuff
           var attendeesEmail = [];
@@ -335,7 +334,14 @@ app.post('/interact', function(req, res) {
           }
           else {
             // suggest alternate times
-            res.send('There is conflict! Please select an available time below.')
+            res.send('There is conflict! Please select an available time below.');
+            var options = suggestTimes(resultTime)
+            console.log("options", options)
+            options = options.map(item => {
+              var newStart = new Date(item.start).toLocaleString();
+              var newEnd = new Date(item.end).toLocaleTimeString();
+              return {text: newStart + ' - ' + newEnd, value: item.start}
+            });
             web.chat.postMessage(channel,
               "These times are available for all your invitees",
               { "attachments": [
@@ -350,24 +356,24 @@ app.post('/interact', function(req, res) {
                       "name": "times_list",
                       "text": "Pick a time...",
                       "type": "select",
-                      "options": [
-                        {
-                          "text": "Hearts",
-                          "value": "hearts"
-                        },
-                        {
-                          "text": "Bridge",
-                          "value": "bridge"
-                        },
-                        {
-                          "text": "Checkers",
-                          "value": "checkers"
-                        },
-                        {
-                          "text": "Global Thermonuclear War",
-                          "value": "war"
-                        }
-                      ]
+                       "options": options //[
+                      //   {
+                      //     "text": "Hearts",
+                      //     "value": "hearts"
+                      //   },
+                      //   {
+                      //     "text": "Bridge",
+                      //     "value": "bridge"
+                      //   },
+                      //   {
+                      //     "text": "Checkers",
+                      //     "value": "checkers"
+                      //   },
+                      //   {
+                      //     "text": "Global Thermonuclear War",
+                      //     "value": "war"
+                      //   }
+                      // ]
                     }
                   ]
                 }
