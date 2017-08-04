@@ -169,27 +169,28 @@ function checkFreeBusy(startTime, email, token){
           reject(err);
           return;
         }
-        var free = true;
         for(var key in resp.calendars){
+          console.log(resp.calendars[key].busy);
           var events = resp.calendars[key].busy;
           if (events.length == 0) {
               console.log('No upcoming events found for ' + key);
               resolve(null);
           } else {
-            // events.forEach(function(busyTime){
-            //   var busy = new Date(busyTime.start);
-            //   if(busy === newTime){
-            //       free = false;
-            //   }
-            // })
+            events.forEach(function(busyTime){
+              var busy = new Date(busyTime.start);
+              busy.setTime(busy.getTime() - 25200000);
+              console.log('busy', busy);
+              if(busy.toTimeString() === start.toTimeString()){
+                  free = false;
+              }
+            })
             if(free === false){
               console.log(resp.calendars[key].busy);
               console.log(key + ' is busy in here...');
               resolve(events);
-            }else{
-              console.log('No upcoming events found for ' + key);
-              resolve(null);
-            }
+          } else {
+            console.log('No upcoming events for ' + key);
+            resolve(null);
           }
         }
       });
