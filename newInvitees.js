@@ -21,7 +21,7 @@ function AllHasAccess(invitees) {
     })
     AllUsers.forEach(function(user) {
       if(!('google_profile' in user)){
-        nonUsers.push(user);
+        nonUsers.push(user.slack_id);
       }
     });
     if(nonUsers.length === 0) {
