@@ -180,7 +180,7 @@ function checkFreeBusy(startTime, email, token){
               var busy = new Date(busyTime.start);
               busy.setTime(busy.getTime() - 25200000);
               console.log('busy', busy);
-              if(busy === start){
+              if(busy.toTimeString() === start.toTimeString()){
                   free = false;
               }
             })
