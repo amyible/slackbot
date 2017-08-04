@@ -73,20 +73,24 @@ function suggestTimes(stack) {
     stack.map(item => ({start: new Date(item.start), end: new Date(item.end)}));
     var latestSoFar = 0;
     for (var i in stack) {
-        latestSoFar = Math.max(latestSoFar, stack[i].end);
+        latestSoFar = Math.max(latestSoFar.getTime(), stack[i].end.getTime());
         if (stack[i+1].start > latestSoFar) suggestions.push({start: latestSoFar, end: stack[i+1].start})
     }
+    var days = [];
     var finals = [];
-    for (var i in suggestions) {
+    var current = suggestions[0];
+    for (var i = 1; i < suggestions.length; i++) {
+        if (suggestions[i].getDay() !== current) days = [];
         var startHour = suggestions[i].start.getHours();
         var endHour = suggestions[i].end.getHours();
         var dif = endHour - startHour;
         for (var j = 0; j < dif; j++) {
-            finals.push({start: suggestions[i].start.setHours(startHour + j), end: suggestions[i].start.setHours(startHour + j + 1)});
-            if (finals.length === 3) break;
+            days.push({start: suggestions[i].start.setHours(startHour + j), end: suggestions[i].start.setHours(startHour + j + 1)});
+            if (days.length === 3) break;
         }
+        finals.concat(days);
     }
-    return finals;
+    return finals.slice(0, 10);
 }
 
 module.exports = {

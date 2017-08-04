@@ -30,8 +30,10 @@ var webhook = new IncomingWebhook(url);
 rtm.start();
 
 var reponseJSON;
+var channel;
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   // console.log('message', message)
+  channel = message.channel;
   var slackUsername = rtm.dataStore.getUserById(message.user);
 
   var dm = rtm.dataStore.getDMByUserId(message.user);
@@ -77,20 +79,20 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
           });
           result = false;
         }
-    })
-    .then(function(resp) {
-      if (result === false && response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')) {
-        var finalmessage = "Welcome to Scheduler Bot! Please go to " + process.env.CONNECT_URL + '/connect?auth_id=' + message.user;
-        rtm.sendMessage(finalmessage, message.channel);
-        return;
-      } else if(response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')){
-        rtm.sendMessage('Hello! You are already logged in to Google!', message.channel);
-        return;
-      }
-      if(!response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
-        if(response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
-          web.chat.postMessage(message.channel,
-             "Does this look good?",
+      })
+      .then(function(resp) {
+        if (result === false && response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')) {
+          var finalmessage = "Welcome to Scheduler Bot! Please go to " + process.env.CONNECT_URL + '/connect?auth_id=' + message.user;
+          rtm.sendMessage(finalmessage, message.channel);
+          return;
+        } else if(response.data.result.fulfillment.speech.includes('https://4325b7f9.ngrok.io/connect')){
+          rtm.sendMessage('Hello! You are already logged in to Google!', message.channel);
+          return;
+        }
+        if(!response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
+          if(response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
+            web.chat.postMessage(message.channel,
+              "Does this look good?",
               { "attachments": [
                 {
                   "text": response.data.result.fulfillment.speech,
@@ -169,54 +171,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   })
 })
 
-//console.log('userAuthUrl', findUser(message.user, slackUsername.name));
-// console.log('response', response);
-//   if(response.data.result.fulfillment.speech.includes('Welcome to Scheduler Bot!')) {
-//     console.log('WELCOMEEEEEEEEEE')
-//       var finalmessage = response.data.result.fulfillment.speech + '?auth_id=' + message.user;
-//       rtm.sendMessage(finalmessage, message.channel)
-//   } else if(!response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
-//     rtm.sendMessage(response.data.result.fulfillment.speech, message.channel);
-
-//   } else if( response.data.result.fulfillment.speech.includes('Okay! Scheduling')) {
-//     web.chat.postMessage(message.channel,
-//   	    "Does this look good?",
-//   	    { "attachments": [
-//   	        {
-//   	            "text": response.data.result.fulfillment.speech,
-//   	            "fallback": "Error",
-//   	            "callback_id": "confirm_task",
-//   	            "color": "#3AA3E3",
-//   	            "attachment_type": "default",
-//   	            "actions": [
-//   	                {
-//   	                    "name": "confirm",
-//   	                    "text": "Yes",
-//   	                    "type": "button",
-//   	                    "value": "yes",
-//                         "confirm": {
-//                             "title": "Are you sure?",
-//                             "text": "This will add a calendar reminder to your google acount",
-//                             "ok_text": "Yes",
-//                             "dismiss_text": "No"
-//                         }
-//   	                },
-//   	                {
-//   	                    "name": "confirm",
-//   	                    "text": "No",
-//   	                    "type": "button",
-//   	                    "value": "no"
-//   	                }
-//   	            ]
-//   	        }
-//   	    ]
-//   		}, function(err, res){
-//   			if (err) console.log('Error:', err);
-//   			else console.log('Response', res);
-//   			}
-//   	);
-//   }
-// })
 .catch(function(err) {
   console.log('Error: ', err);
 })
@@ -347,7 +301,7 @@ app.post('/interact', function(req, res) {
 
         var resultTime = findConflict(startdatetime, enddatetime, freeBusyResult);
         console.log("result", resultTime);
-        if (!result) {
+        if (!resultTime) {
           // add meeting, do normal stuff
           var attendeesEmail = [];
           var meetingOrganizer;
@@ -372,13 +326,57 @@ app.post('/interact', function(req, res) {
             endTime: enddatetime,
             invitees: attendeesEmail,
             subject: summary,
-          }).save(function(error) {if(!error) console.log('successfully saved meeting to database!');})
+          }).save(function(error) {
+            if(error) console.log('ERRORRRRRRRRRRRRRR', error)
+            if(!error) console.log('successfully saved meeting to database!');})
 
-          responseJSON = null;
-          res.send('Taken care of!');
-        }
-        else {
-          // suggest alternate times
+            responseJSON = null;
+            res.send('Taken care of!');
+          }
+          else {
+            // suggest alternate times
+            res.send('There is conflict! Please select an available time below.')
+            web.chat.postMessage(channel,
+              "These times are available for all your invitees",
+              { "attachments": [
+                {
+                  "text": "Choose a date and time",
+                  "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
+                  "color": "#3AA3E3",
+                  "attachment_type": "default",
+                  "callback_id": "time_selection",
+                  "actions": [
+                    {
+                      "name": "times_list",
+                      "text": "Pick a time...",
+                      "type": "select",
+                      "options": [
+                        {
+                          "text": "Hearts",
+                          "value": "hearts"
+                        },
+                        {
+                          "text": "Bridge",
+                          "value": "bridge"
+                        },
+                        {
+                          "text": "Checkers",
+                          "value": "checkers"
+                        },
+                        {
+                          "text": "Global Thermonuclear War",
+                          "value": "war"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, function(err, res){
+              if (err) console.log('Error:', err);
+              else console.log('Response', res);
+            }
+          );
         }
       })
       .catch(function(err){
