@@ -21,13 +21,13 @@ function AllHasAccess(invitees) {
 
         if(nonUsers.length === 0) {
           // true means everyone has access.
-          resolve(nonUsers);
+          resolve(null);
         } else {
           // false means someone didn't do Oauth access.
-          resolve(null);
+          resolve(nonUsers);
         }
       })
-  }
+  })
 }
 
 function meetingabove4(timeStart) {
@@ -55,6 +55,6 @@ function eligibility(invitees, timestart) {
   }
 }
 
-export default = {
-  eligibility,
+module.exports = {
+  AllHasAccess,
 }
