@@ -7,7 +7,6 @@ var OAuth2 = google.auth.OAuth2;
 var models = require('./models/models');
 var User = models.User;
 
-
 //part of google oauth set up
 var oauth2Client = new OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -18,15 +17,6 @@ var scopes = [
   'https://www.googleapis.com/auth/plus.me',
   'https://www.googleapis.com/auth/calendar'
 ];
-
-// addAllDayEvents(oauth2Client, '2017-08-01', 'second testing');
-// var attendees = [
-//   {
-//     "email": "x@gmail.com",
-//   }
-// ];
-// listEvents(oauth2Client);
-// addMeetings(oauth2Client, '2017-08-01T13:00:00+00:00', '2017-08-01T14:00:00+00:00', attendees, "example meeting");
 
 //this is the route that will redirect to google oauth
 router.get('/connect', function(req, res) {
@@ -42,7 +32,6 @@ router.get('/connect', function(req, res) {
   //redirecting to the google oauth url
   res.redirect(url);
 })
-
 //get callback route
 router.get('/success', function(req, res) {
   oauth2Client.getToken(req.query.code, function(err, tokens) {
@@ -85,9 +74,11 @@ function addAllDayEvents(date, summary, token) {
     'summary': summary,
     'start': {
       'date': date,
+       timezone: 'America/Los_Angeles',
     },
     'end': {
       'date': date,
+       timezone: 'America/Los_Angeles',
     },
   };
   calendar.events.insert({
@@ -102,7 +93,6 @@ function addAllDayEvents(date, summary, token) {
     console.log('Event created: %s', event.htmlLink);
   });
 }
-
 function addMeetings(startDateTime, endDateTime, attendees, summary, token) {
   startDateTime.toISOString();
   endDateTime.toISOString();

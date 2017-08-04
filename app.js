@@ -20,7 +20,7 @@ var IncomingWebhook = require('@slack/client').IncomingWebhook;
 
 var token = process.env.SLACK_API_TOKEN || '';
 var url = process.env.SLACK_WEBHOOK_URL || '';
-var apitoken = process.env.API_ACC  ESS_TOKEN;
+var apitoken = process.env.API_ACCESS_TOKEN;
 
 var application = apiai("0363b04fac5d44899aa10b88294aa6cc");
 
@@ -290,6 +290,7 @@ app.post('/interact', function(req, res) {
             subject: subject,
             user: user[0],
           }).save(function(err){ if(!err) console.log('successfully saved an all day event!') })
+          res.send('Taken care of!')
         }else{
           console.log('cannot find user');
         }
@@ -335,7 +336,7 @@ app.post('/interact', function(req, res) {
         var promises = [];
         var freeBusyPromises = users.map(function(user) {
           if (attendeesFinal.includes(user.slack_id)) {
-            promises.push(checkFreeBusy(startdatetime, 1, user.slack_email, user.google_profile));
+            promises.push(checkFreeBusy(startdatetime, 7, user.slack_email, user.google_profile));
           }
         })
 
@@ -367,10 +368,10 @@ app.post('/interact', function(req, res) {
 
           addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
           new Meeting({
-            startTime: Date,
-            endTime: Date,
-            invitees: Array,
-            subject: String,
+            startTime: startdatetime,
+            endTime: enddatetime,
+            invitees: attendeesEmail,
+            subject: summary,
           }).save(function(error) {if(!error) console.log('successfully saved meeting to database!');})
 
           responseJSON = null;
