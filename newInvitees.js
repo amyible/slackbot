@@ -16,18 +16,18 @@ function AllHasAccess(invitees) {
             if(!('google_profile' in user)){
               nonUsers.push(user);
             }
-          }
+          })
         })
 
         if(nonUsers.length === 0) {
           // true means everyone has access.
-          resolve(nonUsers);
+          resolve(null);
         } else {
           // false means someone didn't do Oauth access.
-          resolve(null);
+          resolve(nonUsers);
         }
       })
-  }
+  })
 }
 
 function meetingabove4(timeStart) {
