@@ -55,6 +55,6 @@ function eligibility(invitees, timestart) {
   }
 }
 
-export default = {
-  eligibility,
+module.exports = {
+  AllHasAccess,
 }
