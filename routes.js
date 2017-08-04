@@ -197,7 +197,8 @@ function checkFreeBusy(startTime, email, token){
               resolve(null);
             }
         }
-      });
+      }
+    });
   });
 }
 
