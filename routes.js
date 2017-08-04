@@ -169,8 +169,8 @@ function checkFreeBusy(startTime, email, token){
           reject(err);
           return;
         }
-        var free = true;
         for(var key in resp.calendars){
+          console.log(resp.calendars[key].busy);
           var events = resp.calendars[key].busy;
           if (events.length == 0) {
               console.log('No upcoming events found for ' + key);
@@ -188,10 +188,9 @@ function checkFreeBusy(startTime, email, token){
               console.log(resp.calendars[key].busy);
               console.log(key + ' is busy in here...');
               resolve(events);
-            }else{
-              console.log('No upcoming events found for ' + key);
-              resolve(null);
-            }
+          } else {
+            console.log('No upcoming events for ' + key);
+            resolve(null);
           }
         }
       });
