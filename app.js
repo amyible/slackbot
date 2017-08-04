@@ -225,180 +225,271 @@ app.post('/interact', function(req, res) {
   //if (req.token !== process.env.VERIFICATION_TOKEN) console.log("Bad message!");
   //else {
   var answer = JSON.parse(req.body.payload);
-  console.log('answer', answer);
-  if (answer.actions[0].value === 'yes') {
-    if(answer.actions[0].name === 'confirm task') {
-      var splitted = answer.original_message.attachments[0].text.split(' ');
-      splitted.splice(0, 5);
-      var day = splitted.pop(); splitted.pop();
-      var subject = splitted.join(' ');
-      console.log('subject: ', subject);
-      console.log('day: ', day);
-      User.find({slack_id: answer.user.id})
-      .exec(function(err, user){
-        console.log("USER", user);
-        if(user.length > 0){
-          addAllDayEvents(day, subject, user[0].google_profile);
-          new Reminder({
-            time: day,
-            subject: subject,
-            user: user[0],
-          }).save(function(err){ if(!err) console.log('successfully saved an all day event!') })
-          res.send('Taken care of!')
+  //console.log('answer', answer);
+  if(answer.callback_id === 'time_selection') {
+    console.log(responseJSON.data.result)
+    var time = answer.actions[0].selected_options[0].value;
+    time = new Date(time); var endtime = new Date();
+
+    starttime = new Date(time.getTime());
+    endtime.setTime(starttime.getTime() + 3600000);
+    console.log('start time:', starttime)
+    console.log('end time:', endtime)
+    var attendeesFinal = [];
+    responseJSON.data.result.parameters.invitees.forEach(function(item) {
+      if(item.includes('.')){
+        item = item.slice(0, -1);
+      }
+      attendeesFinal.push(item.slice(2, item.length));
+    })
+    console.log('attendees', attendeesFinal)
+
+    var summary = responseJSON.data.result.parameters.subject;
+    console.log('summary:', summary)
+    var attendeesEmail = [];
+    var meetingOrganizer;
+    User.find()
+    .then(function(allUsers) {
+      allUsers.forEach(function(user) {
+        if(user.slack_id === answer.user.id){
+          meetingOrganizer = user;
         }else{
-          console.log('cannot find user');
+          attendeesFinal.forEach(function(id){
+            if(user.slack_id === id){
+              var userObj = {
+                email: user.slack_email,
+              }
+              attendeesEmail.push(userObj);
+            }
+          });
         }
       })
+      console.log('meetingOrganizer:', meetingOrganizer)
+      console.log('attendeesEmail:', attendeesEmail)
+      addMeetings(starttime, endtime, attendeesEmail, summary, meetingOrganizer.google_profile);
+      new Meeting({
+        startTime: startdatetime,
+        endTime: enddatetime,
+        invitees: attendeesEmail,
+        subject: summary,
+      }).save(function(error) {
+        if(error) console.log('ERRORRRRRRRRRRRRRR', error)
+        if(!error) {
+          console.log('successfully saved meeting to database!');
+        }
+      })
+    })
+    // var users;
+    // User.find()
+    // .then(function(foundUsers){
+    //   users = foundUsers;
+    //   if(users.length === 0) {
+    //     res.send('Unable to find that user. Make sure the user specified linked their Google account.')
+    //   }
+    //   var promises = [];
+    //   var freeBusyPromises = users.map(function(user) {
+    //     if (attendeesFinal.includes(user.slack_id)) {
+    //       promises.push(checkFreeBusy(startdatetime, user.slack_email, user.google_profile));
+    //     }
+    //   })
+    //   console.log('promises', promises)
+    //
+    //   return Promise.all(promises);
+    // })
+    // .then(function(freeBusyResult) {
+    //   console.log('SYED:', freeBusyResult)
+    //   if (!freeBusyResult[0]) {
+    //     // add meeting, do normal stuff
+    //     var attendeesEmail = [];
+    //     var meetingOrganizer;
+    //     users.forEach(function(user) {
+    //       if(user.slack_id === answer.user.id){
+    //         meetingOrganizer = user;
+    //       }else{
+    //         attendeesFinal.forEach(function(id){
+    //           if(user.slack_id === id){
+    //             var userObj = {
+    //               email: user.slack_email,
+    //             }
+    //             attendeesEmail.push(userObj);
+    //           }
+    //         });
+    //       }
+    //     })
+    //
+    //     addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
+    //     new Meeting({
+    //       startTime: startdatetime,
+    //       endTime: enddatetime,
+    //       invitees: attendeesEmail,
+    //       subject: summary,
+    //     }).save(function(error) {
+    //       if(error) console.log('ERRORRRRRRRRRRRRRR', error)
+    //       if(!error) console.log('successfully saved meeting to database!');
+    //     })
+    //
+    //       responseJSON = null;
+    //       res.send('Taken care of!');
+    //     }
+    //   })
     }
 
-    if(answer.actions[0].name === 'confirm meeting') {
-      var splitted = answer.original_message.attachments[0].text.split(' ');
-      // console.log('splitted', splitted);
-      var dateString = splitted[5]
-      var timeString = splitted[7];
-      var startdatetime = new Date(dateString + ' ' + timeString);
-      var enddatetime =  new Date(dateString + ' ' + timeString);
-      enddatetime.setTime(enddatetime.getTime() + 3600000);
-      startdatetime.setTime(startdatetime.getTime())
-      console.log('startdatetime: ', startdatetime)
-      console.log('enddatetime: ', enddatetime)
-
-      var attendees1 = [];
-      splitted.forEach(function(item) {
-        if(item.includes('@')) {
-          attendees1.push(item);
-        }
-      })
-      var attendeesFinal = [];
-      attendees1.forEach(function(item) {
-        if(item.includes('.')){
-          item = item.slice(0, -1);
-        }
-        attendeesFinal.push(item.slice(5, item.length));
-      })
-
-      var summary = responseJSON.data.result.parameters.subject;
-      console.log('summary', summary)
-
-      var users;
-      User.find()
-      .then(function(foundUsers){
-        users = foundUsers;
-        if(users.length === 0) {
-          res.send('Unable to find that user. Make sure the user specified linked their Google account.')
-        }
-        var promises = [];
-        var freeBusyPromises = users.map(function(user) {
-          if (attendeesFinal.includes(user.slack_id)) {
-            promises.push(checkFreeBusy(startdatetime, user.slack_email, user.google_profile));
+    if (answer.actions[0].value === 'yes') {
+      if(answer.actions[0].name === 'confirm task') {
+        var splitted = answer.original_message.attachments[0].text.split(' ');
+        splitted.splice(0, 5);
+        var day = splitted.pop(); splitted.pop();
+        var subject = splitted.join(' ');
+        console.log('subject: ', subject);
+        console.log('day: ', day);
+        User.find({slack_id: answer.user.id})
+        .exec(function(err, user){
+          console.log("USER", user);
+          if(user.length > 0){
+            addAllDayEvents(day, subject, user[0].google_profile);
+            new Reminder({
+              time: day,
+              subject: subject,
+              user: user[0],
+            }).save(function(err){ if(!err) console.log('successfully saved an all day event!') })
+            res.send('Taken care of!')
+          }else{
+            console.log('cannot find user');
           }
         })
+      }
 
-        return Promise.all(promises);
-      })
-      .then(function(freeBusyResult) {
-        console.log('SYED:', freeBusyResult)
-        if (!freeBusyResult[0]) {
-          // add meeting, do normal stuff
-          var attendeesEmail = [];
-          var meetingOrganizer;
-          users.forEach(function(user) {
-            if(user.slack_id === answer.user.id){
-              meetingOrganizer = user;
-            }else{
-              attendeesFinal.forEach(function(id){
-                if(user.slack_id === id){
-                  var userObj = {
-                    email: user.slack_email,
-                  }
-                  attendeesEmail.push(userObj);
-                }
-              });
+      if(answer.actions[0].name === 'confirm meeting') {
+        var splitted = answer.original_message.attachments[0].text.split(' ');
+        // console.log('splitted', splitted);
+        var dateString = splitted[5]
+        var timeString = splitted[7];
+        var startdatetime = new Date(dateString + ' ' + timeString);
+        var enddatetime =  new Date(dateString + ' ' + timeString);
+        enddatetime.setTime(enddatetime.getTime() + 3600000);
+        startdatetime.setTime(startdatetime.getTime())
+        console.log('startdatetime: ', startdatetime)
+        console.log('enddatetime: ', enddatetime)
+
+        var attendees1 = [];
+        splitted.forEach(function(item) {
+          if(item.includes('@')) {
+            attendees1.push(item);
+          }
+        })
+        var attendeesFinal = [];
+        attendees1.forEach(function(item) {
+          if(item.includes('.')){
+            item = item.slice(0, -1);
+          }
+          attendeesFinal.push(item.slice(5, item.length));
+        })
+
+        var summary = responseJSON.data.result.parameters.subject;
+        console.log('summary', summary)
+
+        var users;
+        User.find()
+        .then(function(foundUsers){
+          users = foundUsers;
+          if(users.length === 0) {
+            res.send('Unable to find that user. Make sure the user specified linked their Google account.')
+          }
+          var promises = [];
+          var freeBusyPromises = users.map(function(user) {
+            if (attendeesFinal.includes(user.slack_id)) {
+              promises.push(checkFreeBusy(startdatetime, user.slack_email, user.google_profile));
             }
           })
 
-          addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
-          new Meeting({
-            startTime: startdatetime,
-            endTime: enddatetime,
-            invitees: attendeesEmail,
-            subject: summary,
-          }).save(function(error) {
-            if(error) console.log('ERRORRRRRRRRRRRRRR', error)
-            if(!error) console.log('successfully saved meeting to database!');})
-
-            responseJSON = null;
-            res.send('Taken care of!');
-          }
-          else {
-            // suggest alternate times
-            console.log("freeBusyResult", freeBusyResult)
-            var resultTime = findConflict(startdatetime, enddatetime, freeBusyResult);
-            res.send('There is conflict! Please select an available time below.');
-            var options = suggestTimes(resultTime)
-            console.log("options", options)
-            options = options.map(item => {
-              var newStart = new Date(item.start).toLocaleString();
-              var newEnd = new Date(item.end).toLocaleTimeString();
-              return {text: newStart + ' - ' + newEnd, value: item.start}
-            });
-            web.chat.postMessage(channel,
-              "These times are available for all your invitees",
-              { "attachments": [
-                {
-                  "text": "Choose a date and time",
-                  "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
-                  "color": "#3AA3E3",
-                  "attachment_type": "default",
-                  "callback_id": "time_selection",
-                  "actions": [
-                    {
-                      "name": "times_list",
-                      "text": "Pick a time...",
-                      "type": "select",
-                       "options": options //[
-                      //   {
-                      //     "text": "Hearts",
-                      //     "value": "hearts"
-                      //   },
-                      //   {
-                      //     "text": "Bridge",
-                      //     "value": "bridge"
-                      //   },
-                      //   {
-                      //     "text": "Checkers",
-                      //     "value": "checkers"
-                      //   },
-                      //   {
-                      //     "text": "Global Thermonuclear War",
-                      //     "value": "war"
-                      //   }
-                      // ]
+          return Promise.all(promises);
+        })
+        .then(function(freeBusyResult) {
+          console.log('SYED:', freeBusyResult)
+          if (!freeBusyResult[0]) {
+            // add meeting, do normal stuff
+            var attendeesEmail = [];
+            var meetingOrganizer;
+            users.forEach(function(user) {
+              if(user.slack_id === answer.user.id){
+                meetingOrganizer = user;
+              }else{
+                attendeesFinal.forEach(function(id){
+                  if(user.slack_id === id){
+                    var userObj = {
+                      email: user.slack_email,
                     }
-                  ]
-                }
-              ]
-            }, function(err, res){
-              if (err) console.log('Error:', err);
-              else console.log('Response', res);
+                    attendeesEmail.push(userObj);
+                  }
+                });
+              }
+            })
+
+            addMeetings(startdatetime, enddatetime, attendeesEmail, summary, meetingOrganizer.google_profile);
+            new Meeting({
+              startTime: startdatetime,
+              endTime: enddatetime,
+              invitees: attendeesEmail,
+              subject: summary,
+            }).save(function(error) {
+              if(error) console.log('ERRORRRRRRRRRRRRRR', error)
+              if(!error) console.log('successfully saved meeting to database!');})
+
+              responseJSON = null;
+              res.send('Taken care of!');
             }
-          );
-        }
-      })
-      .catch(function(err){
-        console.log(err);
-      })
+            else {
+              // suggest alternate times
+              console.log("freeBusyResult", freeBusyResult)
+              var resultTime = findConflict(startdatetime, enddatetime, freeBusyResult);
+              res.send('There is conflict! Please select an available time below.');
+              var options = suggestTimes(resultTime)
+              console.log("options", options)
+              options = options.map(item => {
+                var newStart = new Date(item.start).toLocaleString();
+                var newEnd = new Date(item.end).toLocaleTimeString();
+                return {text: newStart + ' - ' + newEnd, value: item.start}
+              });
+              web.chat.postMessage(channel,
+                "These times are available for all your invitees",
+                { "attachments": [
+                  {
+                    "text": "Choose a date and time",
+                    "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
+                    "color": "#3AA3E3",
+                    "attachment_type": "default",
+                    "callback_id": "time_selection",
+                    "actions": [
+                      {
+                        "name": "times_list",
+                        "text": "Pick a time...",
+                        "type": "select",
+                        "options": options
+                      }
+                    ]
+                  }
+                ]
+              }, function(err, res){
+                if (err) console.log('Error:', err);
+                else console.log('Response', res);
+              }
+            );
+          }
+        })
+        .catch(function(err){
+          console.log(err);
+        })
+      }
+
+    } else {
+      responseJSON = null;
+      res.send('Ok!');
     }
+    //}
+  })
 
-  } else {
-    responseJSON = null;
-    res.send('Aw ok then.');
-  }
-  //}
-})
+  var port = process.env.PORT || 3000;
+  app.listen(port);
+  console.log('Express started. Listening on port %s', port);
 
-var port = process.env.PORT || 3000;
-app.listen(port);
-console.log('Express started. Listening on port %s', port);
-
-module.exports = app;
+  module.exports = app;
