@@ -7,9 +7,9 @@ var User = models.User;
 
 function AllHasAccess(invitees) {
   // invitees should be an array!
+  var nonUsers = [];
   User.find()
   .then(function(AllUsers){
-    var nonUsers = [];
     AllUsers.forEach(function(user) {
       if(invitees.includes(user.slack_id)){
         if(!('google_profile' in user)){
@@ -17,16 +17,14 @@ function AllHasAccess(invitees) {
         }
       }
     })
-    return new Promise(function(resolve, reject) {
-      if(nonUsers.length === 0) {
-        // true means everyone has access.
-        resolve(null);
-      } else {
-        // false means someone didn't do Oauth access.
-        resolve(nonUsers);
-      }
-    })
   })
+  if(nonUsers.length === 0) {
+    // true means everyone has access.
+    resolve(null);
+  } else {
+    // false means someone didn't do Oauth access.
+    resolve(nonUsers);
+  }
 }
 
 function meetingabove4(timeStart) {

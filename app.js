@@ -386,10 +386,9 @@ app.post('/interact', function(req, res) {
           }
           attendeesFinal.push(item.slice(5, item.length));
         })
-        AllHasAccess(attendeesFinal).then(function(results){
-          console.log('result from promise', results);
-        })
-        //promise ------------------------------------------------------------------------------------------------------
+        var result = AllHasAccess(attendeesFinal);
+        console.log('result from checking oauth', result);
+        //------------------------------------------------------------------------------------------------------
 
         var summary = responseJSON.data.result.parameters.subject;
         console.log('summary', summary)
