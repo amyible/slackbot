@@ -7,10 +7,10 @@ var User = models.User;
 
 function AllHasAccess(invitees) {
   // invitees should be an array!
-  var nonUsers = [];
   return new Promise(function(resolve, reject){
     User.find()
     .then(function(AllUsers){
+      var nonUsers = [];
       AllUsers.forEach(function(user) {
         if(invitees.includes(user.slack_id)){
           if(!('google_profile' in user)){
