@@ -386,16 +386,11 @@ app.post('/interact', function(req, res) {
           }
           attendeesFinal.push(item.slice(5, item.length));
         })
-        if(true){
-          return Promise(AllHasAccess(attendeesFinal));
-        }.then(function(result){
-          console.log('trying promise 1', result)
-        })
 
         AllHasAccess(attendeesFinal).then(function(results) {
-          console.log('trying promise 2', results);
+          console.log('trying promise!!!', results);
         })
-        
+
         //------------------------------------------------------------------------------------------------------
 
         var summary = responseJSON.data.result.parameters.subject;
