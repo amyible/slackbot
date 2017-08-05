@@ -20,10 +20,10 @@ function AllHasAccess(invitees) {
   })
   if(nonUsers.length === 0) {
     // true means everyone has access.
-    resolve(null);
+    return null;
   } else {
     // false means someone didn't do Oauth access.
-    resolve(nonUsers);
+    return nonUsers;
   }
 }
 
