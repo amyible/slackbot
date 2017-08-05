@@ -8,16 +8,16 @@ var User = models.User;
 function AllHasAccess(invitees) {
   // invitees should be an array!
   var nonUsers = [];
-  User.find()
-  .then(function(AllUsers){
-    AllUsers.forEach(function(user) {
-      if(invitees.includes(user.slack_id)){
-        if(!('google_profile' in user)){
-          nonUsers.push(user);
+  return new Promise(function(resolve, reject){
+    User.find()
+    .then(function(AllUsers){
+      AllUsers.forEach(function(user) {
+        if(invitees.includes(user.slack_id)){
+          if(!('google_profile' in user)){
+            nonUsers.push(user);
+          }
         }
-      }
-    })
-    return new Promise(function(resolve, reject){
+      })
       if(nonUsers.length === 0) {
         // true means everyone has access.
         resolve(null);
@@ -25,6 +25,7 @@ function AllHasAccess(invitees) {
         // false means someone didn't do Oauth access.
         resolve(nonUsers);
       }
+
     })
   })
 }
