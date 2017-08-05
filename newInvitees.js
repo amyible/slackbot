@@ -17,14 +17,16 @@ function AllHasAccess(invitees) {
         }
       }
     })
+    return new Promise(function(resolve, reject){
+      if(nonUsers.length === 0) {
+        // true means everyone has access.
+        resolve(null);
+      } else {
+        // false means someone didn't do Oauth access.
+        resolve(nonUsers);
+      }
+    })
   })
-  if(nonUsers.length === 0) {
-    // true means everyone has access.
-    return null;
-  } else {
-    // false means someone didn't do Oauth access.
-    return nonUsers;
-  }
 }
 
 function meetingabove4(timeStart) {
